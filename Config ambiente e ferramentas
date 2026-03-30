@@ -1,0 +1,54 @@
+## Ambiente Computacional
+
+- **Sistema Operacional:** Debian GNU/Linux
+- **Gerenciador de pacotes:** Miniforge3 + Mamba
+- **Nome do ambiente conda:** `assembly`
+
+
+## 1. Configuração do Ambiente Conda
+
+### 1.1 Criar e ativar o ambiente
+```bash
+mamba create -n assembly -y
+conda activate assembly
+```
+
+### 1.2 Instalar dependências principais
+```bash
+mamba install -c bioconda -c conda-forge \
+  trinity \
+  salmon \
+  bowtie2 \
+  samtools \
+  jellyfish \
+  seqkit \
+  perl \
+  perl-db-file \
+  perl-uri \
+  openjdk \
+  -y
+```
+
+### 1.3 Instalar BBTools
+```bash
+mamba install -c agbiome bbtools -y
+```
+
+### 1.4 Versões instaladas (ambiente validado)
+
+| Ferramenta | Versão |
+|---|---|
+| Python | 3.14.3 |
+| Trinity | v2.15.2 |
+| Salmon | 1.10.3 |
+| Bowtie2 | 2.5.x |
+| Samtools | 1.18 |
+| Jellyfish | 2.3.x |
+| SeqKit | 2.6.x |
+| BBTools | 39.x |
+| OpenJDK | 17.x |
+
+### 1.5 Exportar ambiente para reprodutibilidade
+```bash
+conda env export -n assembly > environment.yml
+```
