@@ -1,0 +1,66 @@
+### Estatísticas da montagem
+```bash
+# Estatísticas básicas
+TrinityStats.pl \
+  /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/montagem/trinity_mahanarva/Trinity.fasta \
+  > /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/logs/stats_montagem.txt
+
+cat /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/logs/stats_montagem.txt
+
+# Filtrar transcritos < 300 bp
+seqkit seq -m 300 \
+  /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/montagem/trinity_mahanarva/Trinity.fasta \
+  > /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/montagem/trinity_mahanarva_filtered.fasta
+
+seqkit stats -a \
+  /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/montagem/trinity_mahanarva_filtered.fasta
+```
+
+### Checkpoints da Montagem
+
+| Métrica | Referência para Hemiptera |
+|---|---|
+| N50 | > 1.000 bp |
+| Número de genes | 15.000 – 60.000 |
+| Comprimento médio | 800 – 2.000 bp |
+| % GC | 35 – 55% |
+
+---
+
+## 5. Avaliação da Completude — BUSCO
+```bash
+busco \
+  -i /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/montagem/trinity_mahanarva_filtered.fasta \
+  -o busco_mahanarva \
+  --out_path /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/busco/ \
+  -m transcriptome \
+  -l insecta_odb10 \
+  -c 16 \
+  2> /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/logs/busco.log
+
+# Resultado
+cat /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/busco/busco_mahanarva/short_summary*.txt
+```
+
+### Checkpoints BUSCO
+
+| Categoria | Mínimo | Bom | Excelente |
+|---|---|---|---|
+| Completos (C%) | > 50% | > 70% | > 85% |
+| Fragmentados (F%) | < 20% | < 15% | < 8% |
+| Ausentes (M%) | < 40% | < 20% | < 10% |
+
+> **Nota:** Por ser tecido específico (glândula salivar), valores de ausentes
+> mais altos são esperados e não representam falha na montagem.
+
+---
+
+## Notas Biológicas
+
+- Tecido: **Glândula Salivar** de *Mahanarva* sp.
+- O transcriptoma é enriquecido em proteínas salivares efetoras, inibidores
+  enzimáticos e proteínas de interface planta-inseto.
+- Genes housekeeping não expressos na glândula salivar não aparecerão na
+  montagem — isso é biologicamente esperado.
+- Estes dados têm alto valor para anotação funcional futura quando um genoma
+  de referência for disponibilizado para o gênero *Mahanarva*.
