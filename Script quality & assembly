@@ -1,0 +1,116 @@
+## 2. Controle de Qualidade Inicial (QC)
+```bash
+# Criar estrutura de diretórios
+mkdir -p ...
+
+# FastQC nos arquivos brutos
+fastqc \
+  gland-saliv_1.fq.gz \
+  gland-saliv_2.fq.gz \
+  -o /qc_inicial/ \
+  -t 16
+
+# Relatório consolidado com MultiQC
+multiqc /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/qc_inicial/ \
+  -o /multiqc_report/ \
+  -n "mahanarva_qc_inicial"
+```
+
+### Checkpoints QC Inicial
+- Phred score médio ≥ Q28
+- Percentual de bases N < 5%
+- Adaptadores identificados: **Nextera (R1)** + **TruSeq (R2)**
+
+---
+
+## 3. Pré-processamento — Trimming (Fastp)
+```bash
+# Criar diretórios
+mkdir -p /trimming
+mkdir -p /qc_pos_trimming
+
+# Fastp — remoção de adaptadores e bases de baixa qualidade
+fastp \
+  -i /gland-saliv_1.fq.gz \
+  -I /home/eulalio/Gland-saliv-cigarrinha/gland-saliv_2.fq.gz \
+  -o /gland-saliv_1_clean.fq.gz \
+  -O /gland-saliv_2_clean.fq.gz \
+  --detect_adapter_for_pe \
+  --qualified_quality_phred 20 \
+  --length_required 50 \
+  --correction \
+  --thread 16 \
+  --html /fastp_gland-saliv.html \
+  --json /fastp_gland-saliv.json
+
+# QC pós-trimming
+fastqc \
+  /gland-saliv_1_clean.fq.gz \
+  /gland-saliv_2_clean.fq.gz \
+  -o /qc_pos_trimming/ \
+  -t 16
+
+multiqc /qc_pos_trimming/ \
+  -o /multiqc_report/ \
+  -n "mahanarva_qc_pos_trimming"
+```
+
+### Adaptadores detectados automaticamente pelo Fastp
+```
+Read 1: Nextera_LMP_Read1_External_Adapter
+        GATCGGAAGAGCACACGTCTGAACTCCAGTCAC
+
+Read 2: Illumina TruSeq Adapter Read 2
+        AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+```
+
+### Checkpoints Pós-Trimming
+- Retenção ≥ 80% dos reads originais
+- Adaptadores = 0% no FastQC pós-trimming
+- Tamanho médio dos reads > 50 bp
+
+---
+
+## 4. Montagem De Novo — Trinity v2.15.2
+```bash
+# Ativar ambiente
+conda activate assembly
+
+# Criar diretórios
+mkdir -p /montagem
+mkdir -p /logs
+
+# Montagem Trinity — otimizada para Hemiptera/Mahanarva
+Trinity \
+  --seqType fq \
+  --left  /data_good_1.fq-001.gz \
+  --right /data_good_2.fq-002.gz \
+  --max_memory 64G \
+  --CPU 16 \
+  --output /trinity_mahanarva \
+  --min_kmer_cov 2 \
+  --min_contig_length 300 \
+  --normalize_reads \
+  --normalize_max_read_cov 50 \
+  --SS_lib_type RF \
+  --jaccard_clip \
+  --verbose \
+  2> /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/logs/trinity_mahanarva.log
+
+# Monitorar em tempo real
+tail -f /home/eulalio/Gland-saliv-cigarrinha/projeto_mahanarva/logs/trinity_mahanarva.log
+```
+
+### Parâmetros utilizados e justificativas
+
+| Parâmetro | Valor | Justificativa |
+|---|---|---|
+| `--seqType` | fq | Formato FASTQ |
+| `--max_memory` | 64G | RAM disponível no servidor |
+| `--CPU` | 16 | Núcleos disponíveis |
+| `--min_kmer_cov` | 2 | Filtra erros de sequenciamento |
+| `--min_contig_length` | 300 | Remove fragmentos curtos |
+| `--normalize_reads` | ativo | Normalização digital in silico |
+| `--normalize_max_read_cov` | 50 | Teto de cobertura por transcrito |
+| `--SS_lib_type` | RF | TruSeq Stranded (dUTP) |
+| `--jaccard_clip` | ativo | Evita fusão de genes em genomas compactos |
