@@ -1,0 +1,10 @@
+## Referências
+
+- Grabherr et al. (2011) Full-length transcriptome assembly from RNA-Seq data
+  without a reference genome. *Nature Biotechnology*, 29, 644–652.
+- Chen et al. (2018) fastp: an ultra-fast all-in-one FASTQ preprocessor.
+  *Bioinformatics*, 34(17), i884–i890.
+- Simão et al. (2015) BUSCO: assessing genome assembly and annotation
+  completeness with single-copy orthologs. *Bioinformatics*, 31(19), 3210–3212.
+
+---
