@@ -1,0 +1,21 @@
+go_id,name,depth,count
+GO:1901363,heterocyclic compound binding,3,1365
+GO:0019899,enzyme binding,3,1139
+GO:0043167,ion binding,3,971
+GO:0042802,identical protein binding,3,790
+GO:0043168,anion binding,4,630
+GO:0003723,RNA binding,3,606
+GO:0046983,protein dimerization activity,3,550
+GO:0008092,cytoskeletal protein binding,3,543
+GO:0043169,cation binding,4,525
+GO:0005102,signaling receptor binding,3,499
+GO:0046872,metal ion binding,5,483
+GO:0003677,DNA binding,3,452
+GO:0019900,kinase binding,4,439
+GO:0042803,protein homodimerization activity,4,421
+GO:0000166,nucleotide binding,4,414
+GO:0019904,protein domain specific binding,3,409
+GO:0019901,protein kinase binding,5,400
+GO:0016817,"hydrolase activity, acting on acid anhydrides",3,386
+GO:0016818,"hydrolase activity, acting on acid anhydrides, in phosphorus-containing anhydrides",4,386
+GO:0016462,pyrophosphatase activity,5,385

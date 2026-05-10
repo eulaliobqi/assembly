@@ -1,0 +1,222 @@
+# =============================================================================
+# .gitignore for Mahanarva spectabilis Salivary Gland Transcriptome Project
+# =============================================================================
+
+# =============================================================================
+# LARGE DATABASE FILES
+# These files are too large for version control (tens to hundreds of GB).
+# See 03_annotation/databases_setup.md for download instructions.
+# =============================================================================
+
+# DIAMOND database binaries
+*.dmnd
+
+# Compressed archives (raw downloads)
+*.gz
+*.tar.gz
+*.tgz
+*.zip
+
+# NCBI NR database files
+nr.*
+nr/
+
+# NCBI taxonomy database
+taxdump/
+taxdump.tar.gz
+*.dmp
+
+# eggNOG database directory
+eggnog/
+eggnog_data/
+eggnog.db
+eggnog_proteins.*
+eggnog.taxa.*
+
+# Pfam database files
+pfam/
+Pfam-A.hmm
+Pfam-A.hmm.h3*
+*.h3i
+*.h3m
+*.h3p
+*.h3f
+
+# =============================================================================
+# LARGE RESULT FILES
+# Intermediate annotation outputs that can be regenerated from the pipeline.
+# =============================================================================
+
+# DIAMOND raw output
+diamond_nr.tsv
+diamond_nr_raw.tsv
+*.diamond.tsv
+
+# HMMER / Pfam output tables
+pfam_hits.tbl
+pfam_domhits.tbl
+*.tbl
+
+# eggNOG-mapper raw output
+*.emapper.annotations
+*.emapper.hits
+*.emapper.seed_orthologs
+emapper_output/
+
+# Large sequence files
+*.bam
+*.sam
+*.fq
+*.fastq
+
+# Trinity intermediate files
+trinity_out_dir/
+read_partitions/
+chrysalis/
+*.TrinityCounts.matrix
+*.TrinityCounts.raw.matrix
+
+# =============================================================================
+# IMAGE FILES
+# Keep PNG figures (small, publication-ready). Exclude large TIFF files.
+# =============================================================================
+
+# Exclude large TIFF files
+*.tiff
+*.tif
+
+# Keep PNG figures in figures/ directory (see exceptions below)
+
+# =============================================================================
+# CACHE AND TEMPORARY FILES
+# =============================================================================
+
+# Log files (generated at runtime)
+*.log
+nohup.out
+slurm-*.out
+*.err
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Temporary files
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+
+# =============================================================================
+# CONDA / PYTHON ENVIRONMENTS
+# =============================================================================
+
+.conda/
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# =============================================================================
+# PIPELINE STATE AND AGENT FILES
+# =============================================================================
+
+nohup.out
+agent_state.json
+*.lock
+
+# =============================================================================
+# DATABASES DIRECTORY (local, not tracked)
+# =============================================================================
+databases/
+
+# Large assembly FASTA files (too large for git)
+data/trinity_mahanarva.Trinity.fasta
+data/trinity_filtered.fasta
+data/trinity_nr95.fasta
+data/trinity_nr95.fasta.clstr
+data/transdecoder/trinity_nr95.fasta.transdecoder.cds
+data/transdecoder/trinity_nr95.fasta.transdecoder.bed
+data/transdecoder/trinity_nr95.fasta.transdecoder.gff3
+
+# Large results (regenerable)
+results/taxon_lineage.tsv
+results/emapper.emapper.annotations
+results/diamond_annot.tsv
+results/blastp_annot.tsv
+results/pfam.domtblout
+
+# Claude internal settings
+.claude/
+
+# =============================================================================
+# EXCEPTIONS - FILES TO KEEP IN VERSION CONTROL
+# =============================================================================
+
+# Keep protein input file (small, 12k sequences)
+!data/gland-saliv-cigarr.fa
+
+# Keep TransDecoder protein predictions
+!data/transdecoder/trinity_nr95.fasta.transdecoder.pep
+
+# Keep gene-transcript map
+!data/trinity_mahanarva.Trinity.fasta.gene_trans_map
+
+# Keep expression data
+!expression/salmon-quant.sf
+!expression/expressed_transcripts.txt
+
+# Keep final annotation results
+!results/annotation_complete.tsv
+!results/annotation_report.txt
+
+# Keep GO and KEGG summary tables
+!results/go/
+!results/go/*.csv
+!results/kegg/
+!results/kegg/*.csv
+
+# Keep assembly evaluation outputs
+!02_assembly_evaluation/trinity_stats2.txt
+!02_assembly_evaluation/busco/
+
+# Keep all PNG figures
+!figures/*.png
+!figures/.gitkeep
+
+# Keep GO/KEGG cache (small, stable)
+!04_functional_analysis/cache/go-basic.obo
+!04_functional_analysis/cache/kegg_pathway_names.json
+!04_functional_analysis/cache/kegg_pathway_categories.json
+
+# Keep data README
+!data/README.md

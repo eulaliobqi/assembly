@@ -1,0 +1,21 @@
+go_id,name,depth,count
+GO:0050794,regulation of cellular process,3,3181
+GO:0044238,primary metabolic process,3,2998
+GO:0007275,multicellular organism development,3,2607
+GO:0016043,cellular component organization,3,2554
+GO:0043170,macromolecule metabolic process,3,2452
+GO:0019222,regulation of metabolic process,4,2242
+GO:0048518,positive regulation of biological process,3,2216
+GO:0048731,system development,3,2181
+GO:0048519,negative regulation of biological process,3,2066
+GO:0060255,regulation of macromolecule metabolic process,5,2044
+GO:0080090,regulation of primary metabolic process,5,1998
+GO:0048522,positive regulation of cellular process,4,1996
+GO:0030154,cell differentiation,3,1853
+GO:0048523,negative regulation of cellular process,4,1852
+GO:0019538,protein metabolic process,4,1767
+GO:0006810,transport,3,1722
+GO:0006996,organelle organization,4,1700
+GO:0048513,animal organ development,3,1698
+GO:0010468,regulation of gene expression,7,1564
+GO:0044085,cellular component biogenesis,3,1499

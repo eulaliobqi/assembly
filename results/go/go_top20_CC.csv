@@ -1,0 +1,21 @@
+go_id,name,depth,count
+GO:0043229,intracellular organelle,3,4102
+GO:0043227,membrane-bounded organelle,3,3723
+GO:0043231,intracellular membrane-bounded organelle,4,3525
+GO:0005634,nucleus,5,2331
+GO:0043233,organelle lumen,3,1941
+GO:0070013,intracellular organelle lumen,4,1939
+GO:0043228,membraneless organelle,3,1768
+GO:0043232,intracellular membraneless organelle,4,1768
+GO:0031981,nuclear lumen,5,1489
+GO:0005886,plasma membrane,3,1374
+GO:0031090,organelle membrane,3,1089
+GO:0031982,vesicle,4,891
+GO:0120025,plasma membrane bounded cell projection,3,888
+GO:0097708,intracellular vesicle,5,848
+GO:0031410,cytoplasmic vesicle,6,847
+GO:0005739,mitochondrion,5,808
+GO:0005856,cytoskeleton,5,710
+GO:0098588,bounding membrane of organelle,4,691
+GO:0043005,neuron projection,4,688
+GO:0005783,endoplasmic reticulum,5,661

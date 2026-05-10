@@ -1,0 +1,18 @@
+# normalize line endings
+* text=auto
+
+# shell scripts always LF
+*.sh text eol=lf
+
+# python always LF
+*.py text eol=lf
+
+# binary files - no conversion
+*.png binary
+*.tiff binary
+*.tif binary
+*.dmnd binary
+*.phr binary
+*.pin binary
+*.psq binary
+*.html text eol=lf

@@ -1,0 +1,25 @@
+name: auto_annotate
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  # alinhamento
+  - diamond=2.1.9
+
+  # taxonomia
+  - taxonkit=0.15.1
+
+  # anotação por ortologia (GO + KEGG)
+  - eggnog-mapper=2.1.12
+
+  # busca por domínios (Pfam)
+  - hmmer=3.4
+
+  # utilitários de sistema
+  - wget
+  - tar
+
+  # Python e bibliotecas
+  - python=3.11
+  - psutil
