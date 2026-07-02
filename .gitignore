@@ -179,6 +179,27 @@ results/pfam.domtblout
 .claude/
 
 # =============================================================================
+# NEW MODULES: secretome, effector prioritization, metagenomic screening
+# Keep final TSV/TXT/figures, ignore heavy raw tool output and backups.
+# =============================================================================
+
+results/annotation_complete.tsv.bak
+
+# SignalP6/TMHMM raw output (05_secretome)
+results/secretome/signalp_out/
+results/secretome/tmhmm_raw/
+results/secretome/*.gff3
+
+# dbCAN raw output (06_effector_prioritization, optional CAZy step)
+results/cazy/*.raw
+results/cazy/hmmer_out/
+
+# Whokaryote/Tiara/CAT-BAT raw output (07_metagenomic_screen, server-side)
+07_metagenomic_screen/whokaryote_out/
+07_metagenomic_screen/tiara_out/
+07_metagenomic_screen/cat_bat_out/
+
+# =============================================================================
 # EXCEPTIONS - FILES TO KEEP IN VERSION CONTROL
 # =============================================================================
 
@@ -220,3 +241,13 @@ results/pfam.domtblout
 
 # Keep data README
 !data/README.md
+
+# Keep new-module final outputs (small, citable tables/reports)
+!results/endosymbiont_candidates/
+!results/endosymbiont_candidates/*.tsv
+!results/endosymbiont_candidates/*.txt
+!results/secretome/*.tsv
+!results/secretome/*.txt
+!results/effector_candidates/
+!results/effector_candidates/*.tsv
+!results/effector_candidates/*.txt

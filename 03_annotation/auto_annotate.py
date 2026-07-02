@@ -425,6 +425,11 @@ def _classify_taxonomy(lineage):
 
 
 def _parse_emapper(path):
+    # emapper 2.1.12 columns (0-indexed): 0 query, 1 seed_ortholog, 2 evalue,
+    # 3 score, 4 eggNOG_OGs, 5 max_annot_lvl, 6 COG_category, 7 Description,
+    # 8 Preferred_name, 9 GOs, 10 EC, 11 KEGG_ko, 12 KEGG_Pathway, ...,
+    # 18 CAZy. eggnog_og previously read parts[1] (seed_ortholog) instead of
+    # parts[4] (eggNOG_OGs) -- fixed here.
     em = {}
     if not path.exists():
         return em
@@ -441,9 +446,10 @@ def _parse_emapper(path):
                 "go_terms":         parts[9].strip()  if len(parts) > 9  else "",
                 "kegg_ko":          parts[11].strip() if len(parts) > 11 else "",
                 "kegg_pathway":     parts[12].strip() if len(parts) > 12 else "",
-                "eggnog_og":        parts[1].strip(),
+                "eggnog_og":        parts[4].strip()  if len(parts) > 4  else "",
                 "cog_category":     parts[6].strip()  if len(parts) > 6  else "",
                 "eggnog_desc":      parts[7].strip()  if len(parts) > 7  else "",
+                "cazy":             parts[18].strip() if len(parts) > 18 else "",
             }
     return em
 
@@ -497,7 +503,7 @@ def phase_integrate(args, state):
         "is_eukaryote", "is_bacteria", "is_fungi", "is_virus",
         "go_terms", "kegg_ko", "kegg_pathway",
         "pfam_domains", "pfam_evalue",
-        "eggnog_og", "cog_category", "eggnog_desc", "diamond_title",
+        "eggnog_og", "cog_category", "eggnog_desc", "cazy", "diamond_title",
     ]
 
     tsv_out = out / "annotation_complete.tsv"
@@ -532,6 +538,7 @@ def phase_integrate(args, state):
                 em.get("eggnog_og",    ""),
                 em.get("cog_category", ""),
                 em.get("eggnog_desc",  ""),
+                em.get("cazy",         ""),
                 d.get("diamond_title", ""),
             ]
             f.write("\t".join(row) + "\n")

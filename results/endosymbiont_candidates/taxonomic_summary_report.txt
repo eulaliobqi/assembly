@@ -1,0 +1,21 @@
+============================================================
+  Taxonomic distribution of best DIAMOND hits (12445 proteins)
+============================================================
+  Eukaryota     :   8711  (70.0%)
+  Bacteria      :    540  (4.3%)
+  Fungi         :    256  (2.1%)
+  Viruses       :     30  (0.2%)
+  Unclassified  :   3164  (25.4%)
+
+  Note: is_eukaryote/is_fungi are independent flags (not mutually exclusive) -- a fungal hit is also a eukaryote hit by definition.
+============================================================
+
+  Endosymbiont candidates (Sulcia/Zinderia/Sodalis-like): 58 proteins
+    Sulcia    : 57
+    Zinderia  : 0
+    Sodalis   : 1
+  -> see results\endosymbiont_candidates\sulcia_sodalis_hits.tsv
+
+  Low-priority pathogen leads (Xylella/phytoplasma): 2 hit(s) -- exploratory only, single-hit noise likely for phytoplasma given the xylem-feeding habit of Cercopidae.
+  -> see results\endosymbiont_candidates\low_priority_pathogen_leads.tsv
+============================================================
