@@ -14,7 +14,7 @@ from pathlib import Path
 try:
     from docx import Document
     from docx.shared import Pt, Cm, Inches, RGBColor
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
 except ImportError:
@@ -124,6 +124,9 @@ def insert_figure(doc, fig_name: str):
 
     p_img = doc.add_paragraph()
     p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    # O estilo 'Normal' usa espacamento de linha EXATO (Pt(18)); sem isto, uma
+    # imagem mais alta que 18pt seria cortada pela caixa de linha do paragrafo.
+    p_img.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
     run = p_img.add_run()
     if fig_path.exists():
         run.add_picture(str(fig_path), width=Inches(6.3))
@@ -133,6 +136,7 @@ def insert_figure(doc, fig_name: str):
 
     p_cap = doc.add_paragraph()
     p_cap.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_cap.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
     p_cap.paragraph_format.space_after = Pt(12)
     r_cap = p_cap.add_run(caption)
     r_cap.italic = True
