@@ -25,13 +25,13 @@ TOTAL = 12445
 
 ANNOTATION = {
     "DIAMOND\nhits":    9340,
-    "GO\nterms":        9197,
-    "KEGG\northologs":  9197,
+    "GO\nterms":        5476,
+    "KEGG\northologs":  5298,
     "Pfam\ndomains":    7732,
 }
 
 TAXONOMY = {
-    "Eukaryota":    8455,
+    "Eukaryota":    8711,
     "Unclassified": 3164,
     "Bacteria":     540,
     "Fungi":        256,
