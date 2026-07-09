@@ -78,6 +78,8 @@ Na ausência de FASTQ bruto disponível para triagem metagenômica clássica (Kr
 | Proteínas TransDecoder (`--single_best_only`) | 12.445 |
 | BUSCO (insecta_odb10, n=1.367) | C:96,2% [S:39,9%, D:56,3%], F:1,9%, M:1,9% |
 
+[[FIG:assembly_qc_summary]]
+
 ### 3.2 Anotação funcional
 
 Da tabela integrada (`results/annotation_complete.tsv`, 12.445 proteínas), 62,1% possuem domínio Pfam, 44,0% possuem termo GO e 42,6% possuem ortólogo KEGG (eggNOG-mapper). Uma coluna CAZy foi adicionada (1,4% das proteínas, 175 no total), mas **nenhum hit às famílias GH28/GH5** (celulases/pectinases classicamente associadas a efetores fitotóxicos de degradação de parede celular) foi encontrado, resultado que reflete a baixa sensibilidade já conhecida da anotação CAZy do eggNOG e motiva uma análise dbCAN dedicada (Seção 2.6).

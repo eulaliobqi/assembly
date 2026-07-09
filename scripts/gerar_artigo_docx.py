@@ -27,8 +27,21 @@ OUTPUT = ROOT / "artigo.docx"
 FIGURES_DIR = ROOT / "figures"
 
 FIGURE_CAPTIONS = {
+    "assembly_qc_summary": (
+        "Figura 1. Painel didatico de controle de qualidade da montagem e predicao "
+        "de proteinas. (A) Numero de sequencias em cada etapa: transcritos "
+        "nao-redundantes apos Trinity + CD-HIT-EST a 95% de identidade (103.560, "
+        "90.344 genes, GC 34,21%; 12.857 transcritos colapsados por redundancia) e "
+        "proteinas preditas por TransDecoder (--single_best_only; 12.445). (B) Curva "
+        "Nx dos contigs montados (N10-N50): N50 = 738 pb, ou seja, metade das bases "
+        "montadas esta em contigs de pelo menos 738 pb. (C) Completude BUSCO "
+        "(insecta_odb10, n=1.367): C:96,2% [S:39,9%, D:56,3%], F:1,9%, M:1,9%. (D) "
+        "Distribuicao dos tipos de ORF preditos pelo TransDecoder: completo (7.262; "
+        "58,4%), 5'-parcial (2.026; 16,3%), interno (1.986; 16,0%) e 3'-parcial "
+        "(1.171; 9,4%)."
+    ),
     "annotation_summary": (
-        "Figura 1. Cobertura da anotacao funcional e origem taxonomica das 12.445 "
+        "Figura 2. Cobertura da anotacao funcional e origem taxonomica das 12.445 "
         "proteinas preditas (dados corrigidos pos-fix do bug de merge de anotacao, "
         "Secao 3.2). (A) Proporcao de proteinas anotadas por fonte: dominio Pfam "
         "(62,1%), ortologo KEGG (42,6%), termo GO (44,0%) e hit DIAMOND contra o NCBI "
@@ -37,13 +50,13 @@ FIGURE_CAPTIONS = {
         "(256; 2,1%) e Viruses (30; 0,2%)."
     ),
     "go_distribution": (
-        "Figura 2. Distribuicao dos 20 termos GO mais frequentes por categoria entre "
+        "Figura 3. Distribuicao dos 20 termos GO mais frequentes por categoria entre "
         "as 12.445 proteinas preditas (profundidade GO >= 3). Paineis: Processo "
         "Biologico, Funcao Molecular e Componente Celular, com o numero de proteinas "
         "e a porcentagem associada a cada termo."
     ),
     "kegg_pathways_bar": (
-        "Figura 3. Top 20 vias KEGG mais representadas entre as proteinas anotadas, "
+        "Figura 4. Top 20 vias KEGG mais representadas entre as proteinas anotadas, "
         "coloridas por categoria funcional KEGG (Cellular Processes, Environmental/"
         "Genetic Information Processing, Human Diseases, Metabolism, Organismal "
         "Systems, Other). Via mais frequente: Metabolic pathways (845 proteinas, "
@@ -51,9 +64,9 @@ FIGURE_CAPTIONS = {
         "Ribosome (261; 2,1%)."
     ),
     "kegg_pathways_bubble": (
-        "Figura 4. Distribuicao das 30 vias KEGG mais representadas, agrupadas por "
+        "Figura 5. Distribuicao das 30 vias KEGG mais representadas, agrupadas por "
         "categoria funcional (eixo x) e numero de proteinas associadas (eixo y; "
-        "tamanho do circulo proporcional a contagem). Complementa a Figura 3 ao "
+        "tamanho do circulo proporcional a contagem). Complementa a Figura 4 ao "
         "evidenciar a dispersao de vias dentro de cada categoria KEGG."
     ),
 }
