@@ -1,6 +1,6 @@
 # Roteiro de apresentação — Transcriptoma da glândula salivar de *Mahanarva spectabilis*
 
-> Estudo de caso para minicurso. Bloco curto, ~15-20 minutos. Narração completa, pronta para ler/adaptar. Marcações `[SLIDE]` indicam quando trocar de imagem — usar as figuras em `figures/` (ou as páginas correspondentes do `artigo.docx`).
+> Estudo de caso para minicurso. Bloco curto, ~15-20 minutos (+ 3-4 min de anexo opcional com código). Narração completa, pronta para ler/adaptar. Marcações `[SLIDE]` indicam quando trocar de imagem — usar as figuras em `figures/` (ou as páginas correspondentes do `artigo.docx`).
 
 ---
 
@@ -111,6 +111,69 @@ Isso ainda não é uma resposta — é uma lista de suspeitos. O próximo passo 
 Esse é o estado real do projeto hoje: montagem, anotação e a primeira camada de triagem de simbionte estão prontas. Predição de secretoma, priorização de efetor e uma segunda camada de confirmação de simbionte — essa via classificação direta dos contigs montados — ainda estão pendentes, esperando processamento em servidor.
 
 E eu queria fechar com o motivo de estar mostrando um projeto inacabado, e não um artigo publicado e redondo: porque isso *é* como bioinformática de verdade acontece. Vocês não vão sair de um transcriptoma direto pra uma resposta. Vão sair com um funil de candidatos, alguns achados sólidos — como esse endossimbionte —, e uma lista clara do que falta rodar. Cada figura que eu mostrei hoje corresponde a uma pergunta que vocês também vão poder fazer nos dados de vocês: minha montagem está completa? Está redundante? O que essas proteínas realmente são? E o que, dentro disso, pode responder à pergunta biológica que me trouxe até aqui?
+
+---
+
+## 9. Anexo — os comandos por trás de cada painel (opcional, ≈ 3-4 min)
+
+**[SLIDE: bloco de código, um por vez, seguindo a ordem da Figura 1]**
+
+> Use este bloco se a turma pedir "mas como isso roda de verdade?", ou se sobrar tempo. Os comandos vêm de `01_quality_assembly/02_trinity_assembly.sh` e `02_assembly_evaluation/03_stats_busco.sh` — os dois scripts do repositório escritos com comentário de rationale em cada parâmetro, pensados originalmente como material de referência. Não são os scripts que geraram os números exatos deste artigo (esses estão em `script-assembly.sh`, sem comentário), mas ensinam o pipeline melhor do que qualquer um dos outros.
+
+Cada bloco de código aqui corresponde a um painel da Figura 1 que a gente já viu.
+
+**Painel A — Trinity + CD-HIT-EST:**
+
+```bash
+Trinity \
+    --seqType fq \
+    --left "${TRIMMED_R1}" --right "${TRIMMED_R2}" \
+    --SS_lib_type RF \
+    --min_kmer_cov 2 \
+    --min_contig_length 300 \
+    --jaccard_clip \
+    --max_memory 64G --CPU 16 \
+    --output "${TRINITY_OUT}"
+
+cd-hit-est \
+    -i "${TRINITY_FASTA}" -o "${CDHIT_OUT}" \
+    -c 0.95 -n 8 -T 16 -M 0 -d 0
+```
+
+Dois pontos pra chamar atenção na hora de explicar: `--SS_lib_type RF` diz ao Trinity que a biblioteca é *strand-specific* — sem isso, ele pode fundir transcritos de fita sentido e antissentido como se fossem um só. E o `-c 0.95` do CD-HIT é exatamente o corte de 95% de identidade que colapsou aqueles 12.857 transcritos redundantes do painel A.
+
+**Painel B — estatísticas e curva N50:**
+
+```bash
+TrinityStats.pl "${CDHIT_FASTA}" | tee cdhit_stats.txt
+```
+
+Um comando só, mas ele que gera todos os números da curva Nx que a gente comentou — N10, N20... até N50.
+
+**Painel C — BUSCO:**
+
+```bash
+busco \
+    --input "${CDHIT_FASTA}" \
+    --out "busco_mahanarva" \
+    --lineage_dataset insecta_odb10 \
+    --mode transcriptome \
+    --cpu 16 --force
+```
+
+Vale ler em voz alta o comentário que está no script original sobre esse painel, porque resume bem a discussão que a gente teve sobre os 56% duplicados:
+
+> "A salivary gland transcriptome is expected to show lower completeness than a whole-body transcriptome... isoforms may inflate duplicated BUSCOs. This is EXPECTED and does NOT indicate a low-quality assembly."
+
+**Painel D — TransDecoder:**
+
+```bash
+TransDecoder.LongOrfs -t "${CDHIT_OUT}" -m 100
+
+TransDecoder.Predict -t "${CDHIT_OUT}" --single_best_only
+```
+
+`-m 100` é o comprimento mínimo de ORF em aminoácidos — os comentários do script justificam esse valor (em vez do padrão, que é maior) exatamente pela hipótese biológica do projeto: peptídeos secretados pequenos, como um efetor salivar, podem ser descartados por um filtro mais rígido. É um bom exemplo de como um parâmetro de bioinformática não é neutro — ele já embute uma escolha ligada à pergunta científica.
 
 ---
 
