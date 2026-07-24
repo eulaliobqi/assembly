@@ -69,6 +69,31 @@ FIGURE_CAPTIONS = {
         "tamanho do circulo proporcional a contagem). Complementa a Figura 4 ao "
         "evidenciar a dispersao de vias dentro de cada categoria KEGG."
     ),
+    "secretome_summary": (
+        "Figura 6. Predicao do secretoma classico com TMbed (substitui SignalP/"
+        "TMHMM, indisponiveis sem licenca DTU). (A) Funil de predicao: das 12.445 "
+        "proteinas, 1.238 (9,9%) tem peptideo sinal, das quais 1.171 (9,4%) "
+        "compoem o secretoma classico (<=1 segmento transmembrana) e 67 foram "
+        "excluidas por terem mais de 1 segmento TM. (B) Distribuicao do numero de "
+        "segmentos transmembrana preditos entre as proteinas com peptideo sinal, "
+        "separando secretoma classico e excluidas, com linha de corte em TM=1. "
+        "(C) Categorias COG mais frequentes entre as 1.171 proteinas do secretoma "
+        "classico: [S] funcao desconhecida (277), [T] transducao de sinal (147), "
+        "[O] modificacao pos-traducional/chaperonas (145) e [G] transporte/"
+        "metabolismo de carboidratos (89)."
+    ),
+    "effector_candidates": (
+        "Figura 7. Candidatos priorizados a efetor/toxina salivar (n=35), "
+        "ranqueados por numero de termos curados correspondentes e por TPM "
+        "(cor/tamanho do ponto). Criterio: proteina simultaneamente no secretoma "
+        "classico (Figura 6) E com correspondencia a pelo menos um termo/dominio "
+        "associado a fitotoxicidade em outros Hemiptera (dominios EF-hand/Ca-"
+        "binding: 16; mucina: 9; peptideo/proteina salivar secretado: 4; "
+        "fosfolipase A2/B: 2; protease, carboxipeptidase e dipeptidil peptidase 4 "
+        "tipo veneno: 1 cada; lacase: 1). Os candidatos mais expressos incluem uma "
+        "proteina salivar secretada (melhor hit DIAMOND: Triatoma infestans) e "
+        "uma protease tipo veneno (melhor hit: Macrosteles quadrilineatus)."
+    ),
 }
 
 FIG_MARKER_RE = re.compile(r"^\[\[FIG:([\w-]+)\]\]$")
