@@ -1,0 +1,10 @@
+name: cazy
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  # Dedicated dbCAN run (03_annotation/08_cazy_annotation.sh) to check
+  # GH28/GH5 cellulase/pectinase families the eggNOG CAZy annotation
+  # missed (only 1.4%/175 proteins, no GH28/GH5 hits -- known low
+  # sensitivity, see README Known Issues).
+  - dbcan

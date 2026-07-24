@@ -152,27 +152,38 @@ Step 6: Figure Generation
   Barplot (top KEGG pathways)
   Pie chart (annotation source coverage)
 
-Step 7: Classical Secretome Prediction (05_secretome/, implemented, pending execution)
+Step 7: Classical Secretome Prediction (05_secretome/, done)
   TransDecoder proteins
       |
-      +-- SignalP 6.0/5.0 (signal peptide detection)
+      `-- TMbed (Bernhofer & Rost 2022): signal peptide + TM segment
+          prediction in a single protein-language-model pass -- replaces
+          SignalP6/TMHMM, whose DTU academic-license tarball was never
+          obtained in this or two other lab projects (see Known Issues)
       |
-      +-- TMHMM (transmembrane helix count)
-      |
-      `-- Filter: signal peptide present AND <=1 TM helix --> classical secretome
+      `-- Filter: signal peptide present AND <=1 TM segment --> classical secretome
 
-Step 8: Candidate Effector/Toxin Prioritization (06_effector_prioritization/, planned)
-  Classical secretome + annotation_complete.tsv + Salmon TPM
+Step 8: Candidate Effector/Toxin Prioritization (06_effector_prioritization/, done)
+  Classical secretome + annotation_complete.tsv (incl. dedicated dbCAN CAZy
+  calls, step 8b) + Salmon TPM
       |
       `-- Rank by: secreted status, curated toxin/effector term & domain list,
           expression level, overlap with UFV proteomics (Monteiro 2019; Rinaldi 2021, 2026)
 
-Step 9: Endosymbiont / Microbial Screening (07_metagenomic_screen/)
+Step 8b: Dedicated dbCAN CAZyme Annotation (03_annotation/08_cazy_annotation.sh, done)
+  TransDecoder proteins
+      |
+      `-- run_dbcan (DIAMOND + dbCAN-HMM + dbCAN-sub) against the real
+          dbCAN database -- replaces the low-sensitivity eggNOG-derived
+          CAZy column (1.4%/175 proteins, 0 GH28/GH5 hits)
+
+Step 9: Endosymbiont / Microbial Screening (07_metagenomic_screen/, done)
   annotation_complete.tsv taxonomic flags + taxon_lineage.tsv
       |
-      +-- Layer 1 (done): DIAMOND/lineage-based candidate extraction (01_taxonomic_summary.py)
+      +-- Layer 1: DIAMOND/lineage-based candidate extraction (01_taxonomic_summary.py)
       |
-      `-- Layer 2 (planned, server-side): Whokaryote/Tiara/CAT-BAT confirmation on assembled contigs
+      `-- Layer 2: Whokaryote+Tiara structural eukaryote/prokaryote
+          classification of assembled contigs, cross-validated against
+          Layer 1 (04_cross_validate_endosymbionts.py)
 ```
 
 ---
@@ -220,14 +231,33 @@ Key tool versions tested:
 
 ### Environment 3: `secretome` (see `environment/env_secretome.yml`)
 
-Used for step 7 (classical secretome prediction). Kept isolated from `annotation` because SignalP6/TMHMM pin their own dependency stack.
+Used for step 7 (classical secretome prediction, TMbed). Kept isolated from `annotation` because it pins its own PyTorch/transformers stack.
 
 ```bash
 conda env create -f environment/env_secretome.yml
 conda activate secretome
 ```
 
-SignalP 6.0 requires a free academic license (registration at services.healthtech.dtu.dk); `05_secretome/secretome_predict.py` auto-detects SignalP 6.0 or 5.0 via `shutil.which()` and falls back accordingly.
+`transformers` is pinned `<5`: TMbed's `embed.py` calls the `tokenizer.batch_encode_plus()` API, removed in transformers v5's tokenization overhaul (still present, deprecated, throughout the v4 line). `tiktoken`/`protobuf` are required by transformers' tokenizer-loading fallback path even though TMbed only needs the plain SentencePiece-based `T5Tokenizer`.
+
+### Environment 4: `cazy` (see `environment/env_cazy.yml`)
+
+Used for step 8b (dedicated dbCAN CAZyme annotation, `dbcan` bioconda package / `run_dbcan` CLI).
+
+```bash
+conda env create -f environment/env_cazy.yml
+conda activate cazy
+run_dbcan database --no-cgc --db_dir /path/to/dbcan_db   # one-time, ~7.7 GB
+```
+
+### Environment 5: `metagenome` (see `environment/env_metagenome.yml`)
+
+Used for step 9 Layer 2 (Whokaryote+Tiara). Kept isolated because `whokaryote` pins an old numpy/scikit-learn/Python 3.8 stack.
+
+```bash
+conda env create -f environment/env_metagenome.yml
+conda activate metagenome
+```
 
 ---
 
@@ -307,6 +337,13 @@ python 04_functional_analysis/09_figures.py
 | `figures/go_cc_barplot.png` | GO CC horizontal barplot |
 | `figures/kegg_pathways_barplot.png` | KEGG pathway barplot |
 | `figures/annotation_summary_pie.png` | Annotation source coverage pie chart |
+| `results/secretome/secretome_classical.tsv` | Classical secretome (TMbed: signal peptide AND <=1 TM segment) |
+| `figures/secretome_summary.png` | Secretome prediction 3-panel summary figure |
+| `results/cazy/overview.tsv` | Dedicated dbCAN CAZyme calls (DIAMOND + dbCAN-HMM + dbCAN-sub) |
+| `results/effector_candidates/effector_candidates_ranked.tsv` | Ranked candidate salivary effectors/toxins |
+| `figures/effector_candidates.png` | Effector candidates dot-plot (TPM x curated category) |
+| `results/whokaryote/whokaryote_predictions_T.tsv` | Layer 2 per-contig eukaryote/prokaryote calls (Whokaryote+Tiara) |
+| `results/endosymbiont_candidates/endosymbionts_cross_validated.tsv` | Layer 1 x Layer 2 endosymbiont cross-validation |
 
 ---
 
@@ -314,14 +351,20 @@ python 04_functional_analysis/09_figures.py
 
 - Input proteins: 12,445 sequences predicted by TransDecoder from Trinity assembly (90,344 Trinity genes / 103,560 transcripts, N50=738)
 - BUSCO completeness (insecta_odb10): C:96.2% [S:39.9%, D:56.3%], F:1.9%, M:1.9%, n=1367
-- Annotation coverage (post merge-fix, see `results/annotation_report.txt`): 62.1% with Pfam domain, 44.0% with GO term, 42.6% with KEGG ortholog, 1.4% with CAZy annotation (175 proteins -- no GH28/GH5 cellulase/pectinase hits found by eggNOG's CAZy annotation, motivating a dedicated dbCAN run in step 8)
+- Annotation coverage (post merge-fix, see `results/annotation_report.txt`): 62.1% with Pfam domain, 44.0% with GO term, 42.6% with KEGG ortholog
+- **Dedicated dbCAN CAZyme annotation** (step 8b, `results/cazy/overview.tsv`): 468 proteins (3.8%) with >=1 CAZy family call (DIAMOND + dbCAN-HMM + dbCAN-sub against the real dbCAN database) vs. 175 (1.4%) from the low-sensitivity eggNOG-derived column -- critically, **16 proteins carry a GH28 or GH5\* (cellulase/pectinase-like) family call**, where eggNOG had found zero; these are new candidates for cell-wall-degrading phytotoxic effectors, folded into the effector prioritization ranking (step 8)
 - Taxonomic origin of best hits: 70.0% Eukaryota, 4.3% Bacteria, 2.1% Fungi (dominated by the entomopathogenic fungus *Metarhizium*), 0.2% Viruses, 25.4% unclassified
+- **Classical secretome** (step 7, TMbed, `results/secretome/secretome_classical.tsv`): 1,171 proteins (9.4%) with signal peptide AND <=1 TM segment; 1,238 proteins (9.9%) have a signal peptide call overall
+- **Candidate salivary effectors/toxins** (step 8, `results/effector_candidates/effector_candidates_ranked.tsv`): 35 proteins are both in the classical secretome AND match a curated toxin/effector term -- top hits include a salivary secreted protein (best DIAMOND hit: *Triatoma infestans*), a venom protease-like (best hit: *Macrosteles quadrilineatus*, a leafhopper), a venom serine carboxypeptidase, mucins, a venom dipeptidyl peptidase 4-like, and several EF-hand/Ca-binding proteins
 - **Endosymbiont candidates** (`results/endosymbiont_candidates/sulcia_sodalis_hits.tsv`): 57 proteins matching *Candidatus* Karelsulcia muelleri (~99% identity, classic housekeeping genes: 6-phosphofructokinase, GAPDH, GroEL, malic enzyme, translation factor IF-2) + 1 protein matching a *Sodalis*-like symbiont of *Philaenus spumarius* -- consistent with the obligate dual endosymbiosis reported for spittlebugs (see Biological Motivation)
 - 2 low-priority, single-hit leads for *Xylella fastidiosa* and phytoplasma (`results/endosymbiont_candidates/low_priority_pathogen_leads.tsv`) -- weak identity/generic domain for the *Xylella* hit, treated as exploratory noise pending further evidence
+- **Endosymbiont Layer 2 cross-validation** (`results/endosymbiont_candidates/endosymbionts_cross_validated.tsv`): Whokaryote+Tiara's independent, structural (gene-content-based, not sequence-similarity-based) eukaryote/prokaryote classification of assembled contigs confirms 3/60 candidates as concordant (predicted prokaryote) and 0 as discordant; the remaining 57 could not be evaluated because Whokaryote only classifies contigs >=5000bp and most endosymbiont candidates are single genes on short Trinity transcripts -- a coverage limitation of Layer 2, not evidence against the Layer 1 calls
 
 ### Known Issues / Problemas Conhecidos
 
 The `annotation_complete.tsv` shipped in earlier commits had a stale merge (empty GO/KEGG/eggNOG-OG/COG columns; `is_fungi`/`is_eukaryote` flags always 0) because it had been generated by an older, out-of-sync version of the annotation script. This was diagnosed and fixed by `03_annotation/07_fix_annotation_merge.py`, which re-derives these fields directly from the raw `emapper.emapper.annotations` (matched by real header, not hardcoded column indices) and from the full (non-reformatted) NCBI lineage in `results/taxon_lineage.tsv`. The corresponding index bug in `auto_annotate.py::_parse_emapper` (`eggnog_og` read from the wrong column) was also patched so that future from-scratch runs do not reintroduce it. Post-fix counts were cross-checked against a prior known-good run hardcoded in `04_functional_analysis/plot_annotation.py` (Bacteria, Fungi, Viruses and Pfam counts matched exactly).
+
+**SignalP6/TMHMM were never installed** in this or two other lab projects (`RLPredictiOme/`, `caracterization-trypsin/`) because both tools require a DTU academic-license tarball download that was never completed, and neither is available on bioconda/conda-forge under any version. Step 7 was re-implemented around **TMbed** (Bernhofer & Rost 2022, *BMC Bioinformatics*), a pip-installable, fully local, no-login protein-language-model predictor that classifies signal peptide and TM helix/strand in one pass. Getting it running surfaced three real, unrelated dependency incompatibilities between TMbed's 2022-era code and the current (2026) package ecosystem, each fixed and pinned in `environment/env_secretome.yml`: (1) the latest `transformers` (v5) removed the `tokenizer.batch_encode_plus()` API TMbed's `embed.py` calls -- pinned `transformers<5`; (2) transformers' tokenizer-loading fallback path additionally requires `tiktoken` and `protobuf` even though the model only uses a plain SentencePiece `T5Tokenizer`; (3) a bundled/partial local model cache directory inside the installed `tmbed` package (missing `spiece.model`) caused an unrelated-looking `AttributeError`/`ValueError` chain until cleared, forcing a fresh download from the `Rostlab/prot_t5_xl_half_uniref50-enc` HuggingFace repo.
 
 ---
 
@@ -337,6 +380,10 @@ Database/tool citations:
 - eggNOG-mapper: Cantalapiedra et al. (2021) *Molecular Biology and Evolution* 38(12), 5825-5829.
 - BUSCO: Manni et al. (2021) *Molecular Biology and Evolution* 38(10), 4647-4654.
 - Pfam: Mistry et al. (2021) *Nucleic Acids Research* 49(D1), D412-D419.
+- TMbed: Bernhofer, M. & Rost, B. (2022). TMbed: transmembrane proteins predicted through language model embeddings. *BMC Bioinformatics* 23, 326.
+- dbCAN: Zheng, J. et al. (2023). dbCAN3: automated carbohydrate-active enzyme and substrate annotation. *Nucleic Acids Research* 51(W1), W115-W121.
+- Whokaryote: Pronk, L.J.U. & Medema, M.H. (2022). Whokaryote: distinguishing eukaryotic and prokaryotic contigs in metagenomes based on gene structure. *Microbial Genomics* 8(5), 000823.
+- Tiara: Karlicki, M., Antonowicz, S. & Karnkowska, A. (2022). Tiara: deep learning-based classification system for eukaryotic sequences. *Bioinformatics* 38(2), 344-350.
 
 Biological background citations:
 - Backus, E.A., Serrano, M.S. & Ranger, C.M. (2005). Mechanisms of hopperburn: an overview of insect taxonomy, behavior, and physiology. *Annual Review of Entomology* 50, 125-151.

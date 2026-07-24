@@ -6,28 +6,32 @@ Secretome prediction for Mahanarva spectabilis salivary gland proteins.
 Workflow:
   Phase 1: validate   - check tools and input files
   Phase 2: prepare    - clean FASTA headers and remove stop codons
-  Phase 3: signalp    - predict signal peptides (SignalP 6.0 or 5.0)
-  Phase 4: tmhmm      - predict transmembrane helices
+  Phase 3: tmbed      - predict signal peptide + transmembrane segments (TMbed)
   Phase 5: filter     - classical secretome (SP present AND TM <= 1)
   Phase 6: annotate   - merge with annotation_complete.tsv
   Phase 7: save       - write TSV output files
   Phase 8: report     - text summary
   Phase 9: figures    - 3-panel publication figure
 
+SignalP6/TMHMM were replaced by TMbed (Bernhofer & Rost 2022, BMC
+Bioinformatics): both require a DTU academic license/manual tarball
+download that was never completed in this or two other lab projects
+(see README Known Issues). TMbed is pip-installable, runs fully local
+(no login/license), and predicts signal peptide + TM helix/strand in a
+single protein-language-model pass.
+
 Usage:
-  cd /home/eulalio/Gland-saliv-cigarrinha/annot-final
+  cd /home/eulalio/trinity_maharnava
+  conda activate secretome
   python 05_secretome/secretome_predict.py
 
-  # Skip SignalP/TMHMM if already run:
+  # Skip TMbed if already run:
   python 05_secretome/secretome_predict.py --resume
 """
 
 import argparse
 import csv
 import logging
-import os
-import re
-import shutil
 import subprocess
 import sys
 from collections import Counter
@@ -41,9 +45,6 @@ OUT_DIR    = BASE / "results" / "secretome"
 FIG_DIR    = BASE / "figures"
 CLEAN_PEP  = OUT_DIR / "proteins_clean.fa"
 
-# Conda environment bin (same as auto_annotate.py)
-CONDA_BIN = "/home/eulalio/miniforge3/envs/auto_annotate/bin"
-
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
@@ -51,9 +52,6 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 log = logging.getLogger(__name__)
-
-# ── PATH setup ────────────────────────────────────────────────────────────────
-os.environ["PATH"] = CONDA_BIN + os.pathsep + os.environ.get("PATH", "")
 
 
 # ── Shell helper ──────────────────────────────────────────────────────────────
@@ -81,38 +79,19 @@ def validate(resume):
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     FIG_DIR.mkdir(parents=True, exist_ok=True)
 
-    tools = {}
-
-    # ── Detect SignalP ────────────────────────────────────────────────────────
-    for name in ("signalp6", "signalp"):
-        path = shutil.which(name)
-        if path:
-            tools["signalp"] = (name, path)
-            log.info("SignalP found: %s -> %s", name, path)
-            break
-    if "signalp" not in tools:
+    check = subprocess.run(
+        [sys.executable, "-m", "tmbed", "--help"],
+        capture_output=True, text=True,
+    )
+    if check.returncode != 0:
         sys.exit(
-            "[ERROR] signalp6 or signalp not found in PATH.\n"
-            "Install: conda install -c bioconda signalp6\n"
-            "         conda install -c bioconda signalp\n"
-            "SignalP 6.0 requires academic license (free): "
-            "https://services.healthtech.dtu.dk/services/SignalP-6.0/"
+            "[ERROR] tmbed module not importable in this environment.\n"
+            "Install: pip install git+https://github.com/BernhoferM/TMbed.git\n"
+            "(see environment/env_secretome.yml)"
         )
+    log.info("TMbed found: %s -m tmbed", sys.executable)
 
-    # ── Detect TMHMM ─────────────────────────────────────────────────────────
-    for name in ("tmhmm",):
-        path = shutil.which(name)
-        if path:
-            tools["tmhmm"] = (name, path)
-            log.info("TMHMM found: %s -> %s", name, path)
-            break
-    if "tmhmm" not in tools:
-        sys.exit(
-            "[ERROR] tmhmm not found in PATH.\n"
-            "Install: conda install -c bioconda tmhmm"
-        )
-
-    return tools
+    return {}
 
 
 # =============================================================================
@@ -161,216 +140,105 @@ def prepare_fasta():
 
 
 # =============================================================================
-# Phase 3: SignalP prediction
+# Phase 3: TMbed prediction (signal peptide + transmembrane, single model)
 # =============================================================================
-def run_signalp(tools, resume):
-    log.info("=== Phase 3: SignalP prediction ===")
+def run_tmbed(resume):
+    log.info("=== Phase 3: TMbed prediction (signal peptide + TM) ===")
 
-    sp_name, _ = tools["signalp"]
-    sp_out = OUT_DIR / "signalp_out"
-    sp_out.mkdir(exist_ok=True)
+    pred_file = OUT_DIR / "tmbed_results.pred"
 
-    if sp_name == "signalp6":
-        result_file = sp_out / "prediction_results.txt"
-        if result_file.exists() and resume:
-            log.info("SignalP 6.0 output found, using cached results.")
-        else:
-            cmd = (
-                f"signalp6 "
-                f"--fastafile {CLEAN_PEP} "
-                f"--output_dir {sp_out} "
-                f"--organism eukarya "
-                f"--format txt "
-                f"--mode fast"
-            )
-            run(cmd)
-        return parse_signalp6(result_file)
-
+    if pred_file.exists() and resume:
+        log.info("TMbed output found, using cached results.")
     else:
-        # SignalP 5.0
-        prefix = sp_out / "signalp5"
-        result_file = Path(str(prefix) + "_summary.signalp5")
-        if result_file.exists() and resume:
-            log.info("SignalP 5.0 output found, using cached results.")
-        else:
-            cmd = (
-                f"signalp "
-                f"-fasta {CLEAN_PEP} "
-                f"-org euk "
-                f"-format short "
-                f"-prefix {prefix}"
-            )
-            run(cmd)
-        return parse_signalp5(result_file)
+        cmd = (
+            f"{sys.executable} -m tmbed predict "
+            f"-f {CLEAN_PEP} -p {pred_file} --out-format=2"
+        )
+        run(cmd)
+
+    sp_data, tm_data = parse_tmbed(pred_file)
+    return sp_data, tm_data
 
 
-def parse_signalp6(result_file):
+def parse_tmbed(result_file):
     """
-    Parse SignalP 6.0 prediction_results.txt
-    Expected columns (tab-separated):
-      ID  Prediction  SP(Sec/SPI)  OTHER  CS Position
-    """
-    if not result_file.exists():
-        sys.exit(f"[ERROR] SignalP 6.0 output not found: {result_file}")
+    Parse TMbed --out-format=2 (tabular, directed segments):
+      >protein_id
+      AA  PRD  P(B)  P(H)  P(S)  P(i)  P(o)
+      <one row per residue>
+      <blank line before next record>
 
-    data = {}
-    with open(result_file) as fh:
-        for line in fh:
-            if line.startswith("#") or not line.strip():
-                continue
-            parts = line.rstrip("\n").split("\t")
-            if len(parts) < 2:
-                continue
-            prot_id = parts[0].strip()
-            pred    = parts[1].strip()
-            try:
-                sp_prob = float(parts[2]) if len(parts) > 2 else 0.0
-            except ValueError:
-                sp_prob = 0.0
-            cs_pos  = parts[4].strip() if len(parts) > 4 else ""
-            has_sp  = (pred == "SP(Sec/SPI)")
-            data[prot_id] = {
-                "has_sp":       has_sp,
-                "sp_prob":      sp_prob,
-                "cs_pos":       cs_pos,
-                "signalp_pred": pred,
-            }
-
-    n_sp = sum(1 for v in data.values() if v["has_sp"])
-    log.info("SignalP 6.0: %d proteins parsed, %d with signal peptide", len(data), n_sp)
-    return data
-
-
-def parse_signalp5(result_file):
-    """
-    Parse SignalP 5.0 short summary (_summary.signalp5).
-    Expected columns (whitespace-separated):
-      ID  Prediction  SP(Sec/SPI)  TAT(Tat/SPI)  LIPO(Sec/SPII)  OTHER  CS Position
+    Per-residue label alphabet (directed): B/b (TM beta strand),
+    H/h (TM alpha helix), S (signal peptide), .  (other/globular).
+    A contiguous run of the same TM letter (H/h or B/b) = one helix/strand
+    segment; classical secretome = has_sp AND tm_count <= 1 (same
+    definition previously used for SignalP+TMHMM).
     """
     if not result_file.exists():
-        sys.exit(f"[ERROR] SignalP 5.0 output not found: {result_file}")
+        sys.exit(f"[ERROR] TMbed output not found: {result_file}")
 
-    data = {}
+    sp_data, tm_data = {}, {}
+    prot_id = None
+    labels, sp_probs = [], []
+
+    def flush():
+        if prot_id is None:
+            return
+        has_sp = "S" in labels
+        sp_len = 0
+        for lab in labels:
+            if lab != "S":
+                break
+            sp_len += 1
+        sp_prob = round(max(sp_probs[:sp_len]) if has_sp else (max(sp_probs) if sp_probs else 0.0), 4)
+
+        tm_runs = []
+        prev_lab = None
+        for lab in labels:
+            if lab in ("H", "h", "B", "b"):
+                if lab != prev_lab:
+                    tm_runs.append(lab)
+                prev_lab = lab
+            else:
+                prev_lab = None
+        tm_count = len(tm_runs)
+
+        sp_data[prot_id] = {
+            "has_sp": has_sp,
+            "sp_prob": sp_prob,
+            "cs_pos": str(sp_len) if has_sp else "",
+            "signalp_pred": "SP(Sec/SPI)" if has_sp else "OTHER",
+        }
+        tm_data[prot_id] = {"tm_count": tm_count, "topology": ",".join(tm_runs)}
+
     with open(result_file) as fh:
         for line in fh:
-            if line.startswith("#") or not line.strip():
+            line = line.rstrip("\n")
+            if not line.strip():
+                continue
+            if line.startswith(">"):
+                flush()
+                prot_id = line[1:].split()[0]
+                labels, sp_probs = [], []
                 continue
             parts = line.split()
-            if len(parts) < 4:
+            if not parts or parts[0] == "AA":
                 continue
-            prot_id = parts[0]
-            pred    = parts[1]
+            # AA  PRD  P(B)  P(H)  P(S)  P(i)  P(o)
+            if len(parts) < 5:
+                continue
+            labels.append(parts[1])
             try:
-                sp_prob = float(parts[2])
+                sp_probs.append(float(parts[4]))
             except ValueError:
-                sp_prob = 0.0
-            cs_pos  = parts[-1] if len(parts) > 5 else ""
-            has_sp  = (pred == "SP(Sec/SPI)")
-            data[prot_id] = {
-                "has_sp":       has_sp,
-                "sp_prob":      sp_prob,
-                "cs_pos":       cs_pos,
-                "signalp_pred": pred,
-            }
+                sp_probs.append(0.0)
+        flush()
 
-    n_sp = sum(1 for v in data.values() if v["has_sp"])
-    log.info("SignalP 5.0: %d proteins parsed, %d with signal peptide", len(data), n_sp)
-    return data
-
-
-# =============================================================================
-# Phase 4: TMHMM prediction
-# =============================================================================
-def run_tmhmm(tools, resume):
-    log.info("=== Phase 4: TMHMM transmembrane helix prediction ===")
-
-    tm_result = OUT_DIR / "tmhmm_results.txt"
-
-    if tm_result.exists() and resume:
-        log.info("TMHMM output found, using cached results.")
-    else:
-        # Try --short flag first; some versions use -short
-        stdout, stderr, rc = run(
-            f"tmhmm --short {CLEAN_PEP}", check=False
-        )
-        if rc != 0:
-            log.info("--short flag not supported, retrying without it.")
-            stdout, stderr, rc = run(f"tmhmm {CLEAN_PEP}", check=False)
-            if rc != 0:
-                log.error("TMHMM stderr: %s", stderr[-2000:])
-                sys.exit("[ERROR] TMHMM failed.")
-
-        with open(tm_result, "w") as fh:
-            fh.write(stdout)
-
-    return parse_tmhmm(tm_result)
-
-
-def parse_tmhmm(result_file):
-    """
-    Supports both TMHMM output formats:
-
-    Short format (--short):
-      SEQID  len=N  ExpAA=X  First60=X  PredHel=N  Topology=...
-
-    Verbose format (default):
-      # SEQUENCE SEQID  Length: N  Number of predicted TMHs: N  ...
-      SEQID  TMHMM2.0  inside/outside/TMhelix  start  end
-    """
-    if not result_file.exists():
-        sys.exit(f"[ERROR] TMHMM output not found: {result_file}")
-
-    data = {}
-    verbose_mode = False
-
-    with open(result_file) as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-
-            # Detect verbose format summary line
-            if line.startswith("# SEQUENCE"):
-                verbose_mode = True
-                # Extract protein_id and PredHel count
-                # e.g.: "# SEQUENCE SEQID  Length: 219  Number of predicted TMHs: 0 ..."
-                m_id  = re.search(r"^# SEQUENCE\s+(\S+)", line)
-                m_hel = re.search(r"Number of predicted TMHs:\s*(\d+)", line)
-                if m_id:
-                    prot_id = m_id.group(1)
-                    tm_count = int(m_hel.group(1)) if m_hel else 0
-                    data[prot_id] = {"tm_count": tm_count, "topology": ""}
-                continue
-
-            # Skip comment lines that are not # SEQUENCE
-            if line.startswith("#"):
-                continue
-
-            # Topology lines in verbose format: "SEQID  TMHMM2.0  inside  1  219"
-            if verbose_mode and "\t" not in line and "len=" not in line:
-                continue
-
-            # Short format: "SEQID  len=N  ExpAA=X  First60=X  PredHel=N  Topology=..."
-            if "len=" in line and "PredHel=" in line:
-                parts = line.split()
-                if not parts:
-                    continue
-                prot_id  = parts[0]
-                tm_count = 0
-                topology = ""
-                for tok in parts[1:]:
-                    if tok.startswith("PredHel="):
-                        try:
-                            tm_count = int(tok.split("=")[1])
-                        except ValueError:
-                            tm_count = 0
-                    elif tok.startswith("Topology="):
-                        topology = tok.split("=")[1]
-                data[prot_id] = {"tm_count": tm_count, "topology": topology}
-
-    n_tm = sum(1 for v in data.values() if v["tm_count"] > 0)
-    log.info("TMHMM: %d proteins parsed, %d with TM domains", len(data), n_tm)
-    return data
+    n_sp = sum(1 for v in sp_data.values() if v["has_sp"])
+    n_tm = sum(1 for v in tm_data.values() if v["tm_count"] > 0)
+    log.info("TMbed: %d proteins parsed, %d with signal peptide, %d with TM segments",
+              len(sp_data), n_sp, n_tm)
+    return sp_data, tm_data
 
 
 # =============================================================================
@@ -550,9 +418,10 @@ def generate_report(merged, n_total):
         "=" * 62,
         "",
         "PIPELINE",
-        "  SignalP 6.0  -  signal peptide prediction (Sec/SPI)",
-        "  TMHMM 2.0   -  transmembrane helix prediction",
-        "  Filter: SP(Sec/SPI) = YES  AND  PredHel <= 1",
+        "  TMbed (Bernhofer & Rost 2022) - signal peptide + TM segment",
+        "  prediction in a single protein-language-model pass",
+        "  (replaces SignalP+TMHMM, blocked by DTU academic license)",
+        "  Filter: signal peptide present  AND  TM segments <= 1",
         "",
         "RESULTS",
         "-" * 42,
@@ -800,17 +669,16 @@ def main():
     )
     parser.add_argument(
         "--resume", action="store_true",
-        help="Skip SignalP/TMHMM if output files already exist",
+        help="Skip TMbed if output files already exist",
     )
     args = parser.parse_args()
 
     log.info("Secretome prediction pipeline - Mahanarva spectabilis")
     log.info("Project root: %s", BASE)
 
-    tools   = validate(args.resume)
+    validate(args.resume)
     n_total = prepare_fasta()
-    sp_data = run_signalp(tools, args.resume)
-    tm_data = run_tmhmm(tools, args.resume)
+    sp_data, tm_data = run_tmbed(args.resume)
 
     all_results, secreted = filter_secretome(sp_data, tm_data, n_total)
 

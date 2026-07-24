@@ -1,0 +1,17 @@
+EFFECTOR/TOXIN CANDIDATE PRIORITIZATION REPORT
+Mahanarva spectabilis - salivary gland proteins
+==============================================================
+
+Criteria: classical secretome (TMbed) AND >=1 curated toxin/effector term
+
+Total candidates: 35
+
+Candidates per curated term:
+  ef_hand_ca_binding           16
+  mucin                         9
+  salivary_secreted             4
+  phospholipase                 2
+  venom_protease                1
+  venom_carboxypeptidase        1
+  dpp4                          1
+  laccase                       1

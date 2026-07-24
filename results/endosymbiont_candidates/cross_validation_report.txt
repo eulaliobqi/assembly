@@ -1,0 +1,14 @@
+ENDOSYMBIONT CROSS-VALIDATION REPORT (Layer 1 DIAMOND vs Layer 2 Whokaryote+Tiara)
+Mahanarva spectabilis - salivary gland transcriptome
+======================================================================
+
+Whokaryote's structural gene-content classifier only analyzes contigs
+>=5000bp; most Layer 1 candidates are single bacterial housekeeping
+genes on short Trinity transcripts, so most rows are expected to be
+'not_analyzed_below_5000bp' rather than confirmed/contradicted. This is
+a coverage limitation of Layer 2, not evidence against the Layer 1 call.
+
+Total Layer 1 candidates: 60
+  Concordant (Whokaryote = prokaryote): 3
+  Discordant (Whokaryote = eukaryote):  0
+  Not analyzed (<5000bp):               57

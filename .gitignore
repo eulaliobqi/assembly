@@ -190,11 +190,17 @@ results/secretome/signalp_out/
 results/secretome/tmhmm_raw/
 results/secretome/*.gff3
 
-# dbCAN raw output (06_effector_prioritization, optional CAZy step)
+# dbCAN raw output (03_annotation/08_cazy_annotation.sh)
 results/cazy/*.raw
 results/cazy/hmmer_out/
+results/cazy/uniInput.faa
 
-# Whokaryote/Tiara/CAT-BAT raw output (07_metagenomic_screen, server-side)
+# Whokaryote/Tiara raw output (07_metagenomic_screen Layer 2, server-side)
+# -- large regenerable FASTA/GFF; keep only the small per-contig call table.
+results/whokaryote/*.fasta
+results/whokaryote/*.faa
+results/whokaryote/*.gff
+results/whokaryote/featuretable.csv
 07_metagenomic_screen/whokaryote_out/
 07_metagenomic_screen/tiara_out/
 07_metagenomic_screen/cat_bat_out/
@@ -251,3 +257,8 @@ results/cazy/hmmer_out/
 !results/effector_candidates/
 !results/effector_candidates/*.tsv
 !results/effector_candidates/*.txt
+!results/cazy/
+!results/cazy/*.tsv
+!results/whokaryote/
+!results/whokaryote/whokaryote_predictions_T.tsv
+!results/whokaryote/*.txt

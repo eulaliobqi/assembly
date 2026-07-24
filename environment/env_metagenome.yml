@@ -1,0 +1,11 @@
+name: metagenome
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  # Layer 2 endosymbiont/contaminant confirmation (07_metagenomic_screen/):
+  # eukaryote/prokaryote classification of assembled contigs independent
+  # of the DIAMOND/eggNOG-based Layer 1 classification. Kept isolated
+  # because whokaryote pins an old numpy/scikit-learn/python 3.8 stack.
+  - whokaryote
+  - tiara
