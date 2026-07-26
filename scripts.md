@@ -2,7 +2,7 @@
 
 > Material de apoio para o minicurso. Cada seção mostra a lógica central de uma etapa do pipeline, **generalizada** (nomes de variável genéricos, comentários explicando o porquê de cada parâmetro) e **resumida** — não é o código de produção completo do repositório, que tem bem mais tratamento de erro, retomada de execução e logging. Os scripts completos estão em `01_quality_assembly/`, `02_assembly_evaluation/`, `03_annotation/`, `04_functional_analysis/`, `05_secretome/` e `07_metagenomic_screen/`, caso alguém queira adaptar de verdade.
 >
-> Ordem: QC → montagem → avaliação → anotação → visualização → endossimbiontes → secretoma (pendente).
+> Ordem: QC → montagem → avaliação → anotação → visualização → endossimbiontes (Camadas 1-2) → secretoma/efetores → **descoberta de patógeno e censo completo do microbioma (Camada 3, Seção 8)**.
 
 ---
 
@@ -258,9 +258,9 @@ symbiont_hits.to_csv("sulcia_sodalis_hits.tsv", sep="\t", index=False)
 
 ---
 
-## 7. Predição de secretoma (pendente de execução — servidor)
+## 7. Predição de secretoma (concluído — TMbed substituiu SignalP6/TMHMM)
 
-**Ferramentas:** SignalP 6.0 (ou 5.0), TMHMM. **Fonte:** `05_secretome/secretome_predict.py`. Este é o próximo passo do pipeline, ainda não rodado.
+**Ferramentas:** TMbed (protein language model, único passo faz peptídeo sinal + hélice TM). **Fonte:** `05_secretome/secretome_predict.py`. SignalP6/TMHMM nunca foram instalados (licença DTU nunca obtida, indisponíveis via bioconda) — substituídos por TMbed, que roda 100% local sem login. Resultado real: 1.171 proteínas (9,4%) no secretoma clássico.
 
 ```bash
 # Peptideo sinal -- proteina tem sequencia de exportacao?
@@ -283,6 +283,49 @@ def is_classical_secretome(has_signal_peptide, tm_helix_count):
 
 ---
 
+## 8. Descoberta de patógeno e censo completo do microbioma (Camada 3)
+
+**Ferramentas:** hmmfetch/hmmscan (HMMER), DIAMOND, bowtie2+samtools, pandas. Executado via comandos diretos durante a sessão de análise (não como scripts numerados reutilizáveis, diferente das seções 1-7 — ver Known Issues do README). Motivação: a pergunta biológica mudou de "confirmar os endossimbiontes esperados" para "existe um patógeno (vírus/fungo/bactéria) causando o amarelão?" — isso muda a ordem de prioridade e exige testar, não só descrever.
+
+```bash
+# 1) Extrair só os perfis HMM de RdRp (RNA-polimerase dependente de RNA) do
+#    banco Pfam-A ja instalado -- evita baixar um banco viral dedicado do
+#    zero. Os 31 codigos de acesso foram conferidos direto no arquivo real
+#    (grep), nao de memoria -- Pfam versiona os codigos (ex. PF00680.26) e
+#    hmmfetch falha silenciosamente se a versao nao bater.
+hmmfetch -f Pfam-A.hmm rdrp_accessions.txt > rdrp_subset.hmm
+
+# 2) Escanear as proteinas TransDecoder ja existentes contra esse subconjunto
+hmmscan --domtblout rdrp_hits.domtbl rdrp_subset.hmm proteins.pep
+
+# 3) Confirmar cada hit com RdRp por uma segunda fonte independente:
+#    similaridade de sequencia contra um banco viral dedicado (nao o NR
+#    generico, mais sensivel para virus divergentes)
+diamond blastx -q contigs.fasta -d viral_refseq.dmnd -o viral_hits.tsv
+```
+
+```python
+# 4) Confirmacao/refutacao de patogeno especifico por mapeamento
+#    GENOMA INTEIRO (nao so 1 hit de proteina) -- e o mesmo principio de
+#    Kraken2/mapeamento competitivo usado em metagenomica de verdade,
+#    aplicado a um alvo especifico em vez de um banco generico
+import subprocess
+subprocess.run(["bowtie2", "-x", "ref_index", "-1", "reads_R1.fq.gz",
+                 "-2", "reads_R2.fq.gz", "-S", "mapped.sam", "--no-unal"])
+# depois: samtools depth -a --> breadth = % de posicoes com profundidade > 0
+# CRITERIO DE REFUTACAO: se quase todas as poucas posicoes cobertas caem
+# dentro de um operon de rRNA (conferido contra o GFF3 real do genoma),
+# e cross-mapping de uma regiao universalmente conservada, nao presenca
+# real do organismo -- foi exatamente o que aconteceu com Xylella/fitoplasma
+# neste projeto (breadth < 0,3% em ambos, ~100% do sinal em rRNA).
+```
+
+**Por que caracterizar TUDO antes de inferir:** a tentação natural é ir direto testar os organismos que alguem ja suspeitava (aqui, Xylella e fitoplasma, ja sinalizados numa sessao anterior). Isso deixa um ponto cego real: dos 540 hits de Bacteria da anotacao, so uns 60 tinham sido olhados antes desta rodada. Quebrar TODOS os hits por genero (mesma logica de `groupby` + `value_counts` do pandas usada na Secao 6) e o que revelou, por exemplo, 88 hits de *Herbaspirillum* (endofito de gramineas, nunca mencionado antes) -- so depois desse censo completo faz sentido perguntar "e algum desses um candidato a causador de doenca?".
+
+**Por que testar em vez de so descrever:** um hit de 45-70% de identidade a uma unica proteina (o que a Secao 6 faz) e fraco -- pode ser coincidencia de dominio conservado. Mapear TODOS os reads brutos contra o genoma de referencia inteiro, e checar ONDE exatamente as poucas posicoes cobertas caem (gene especifico vs. rRNA universal), e um teste muito mais rigoroso -- e foi o que permitiu refutar (nao so "nao confirmar") os dois leads que existiam.
+
+---
+
 ## Referência — onde está cada script completo
 
 | Etapa | Script completo | Linhas |
@@ -295,5 +338,7 @@ def is_classical_secretome(has_signal_peptide, tm_helix_count):
 | Figura de anotação | `04_functional_analysis/plot_annotation.py` | 160 |
 | Figura de QC de montagem | `04_functional_analysis/plot_assembly_qc.py` | 182 |
 | GO/KEGG | `04_functional_analysis/go_kegg_analysis.py` | 573 |
-| Endossimbiontes | `07_metagenomic_screen/01_taxonomic_summary.py` | 177 |
-| Secretoma (pendente) | `05_secretome/secretome_predict.py` | 829 |
+| Endossimbiontes (Camadas 1-2) | `07_metagenomic_screen/01_taxonomic_summary.py` + `04_cross_validate_endosymbionts.py` | 177 + ~150 |
+| Secretoma | `05_secretome/secretome_predict.py` | 829 |
+| Efetores/toxinas | `06_effector_prioritization/effector_candidates.py` | — |
+| Camada 3 (patógeno + censo microbioma) | Executado via comandos diretos, sem script numerado permanente — ver Seção 8 e README "Known Issues" | — |

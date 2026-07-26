@@ -86,9 +86,9 @@ Voltando àqueles 4,3% de hits em bactéria do painel B: quando a gente filtra e
 
 Isso bate com a literatura: cigarrinhas-das-pastagens sul-americanas próximas já tiveram esse mesmo simbionte confirmado por 16S rRNA. E encontramos também 1 proteína batendo num simbionte do tipo *Sodalis*, já descrito numa cigarrinha europeia da mesma superfamília. Ou seja: *Sulcia* mais um segundo parceiro — o padrão clássico de endossimbiose dupla dessas cigarrinhas parece estar presente aqui também, e isso é a primeira vez que se documenta isso pra esse gênero.
 
-Vale um comentário metodológico rápido: a gente não tinha FASTQ bruto pra rodar uma triagem metagenômica clássica. Então essa detecção veio de reaproveitar a própria anotação taxonômica que já tínhamos gerado — um atalho que funciona bem quando o simbionte é altamente expresso, mesmo em tecido que não é o clássico "corpo gorduroso" onde ele mora.
+Vale um comentário metodológico rápido: essa primeira detecção veio de reaproveitar a própria anotação taxonômica que já tínhamos gerado, sem precisar de sequenciamento metagenômico dedicado — um atalho que funciona bem quando o simbionte é altamente expresso, mesmo em tecido que não é o clássico "corpo gorduroso" onde ele mora. Depois confirmamos isso de duas formas independentes: o GC% desses candidatos é 24,9% de mediana contra 36,2% do resto do transcriptoma (estatisticamente muito significativo — é o perfil AT-rico clássico de genoma reduzido de simbionte), e a identidade de 99,4% a proteínas nomeadas de *Karelsulcia*. Uma tentativa de árvore filogenética (GroEL) não deu resultado conclusivo — contamos isso sem esconder, faz parte do processo.
 
-E, por transparência: apareceram também 2 hits fracos, um pra *Xylella fastidiosa* e outro pra fitoplasma — mas com baixíssima confiança, e no caso do fitoplasma, biologicamente improvável, porque fitoplasma vive só no floema e essa cigarrinha se alimenta só de xilema. Não estou descartando a hipótese de vetor de patógeno, só dizendo que esse dado sozinho não prova nada — precisaria de PCR direcionado pra confirmar.
+E aqui vem uma atualização importante desde a última vez que apresentei isso: aqueles 2 hits fracos de *Xylella fastidiosa* e fitoplasma que eu tratava como "precisa confirmar com PCR" — nós já testamos. Usamos o FASTQ bruto de verdade, mapeamos os 173 milhões de reads contra os genomas de referência completos de ambos, e a cobertura ficou abaixo de 0,3% em ambos os casos — e praticamente todo esse pouco sinal cai dentro do gene de rRNA, que é a região mais conservada entre bactérias distantes. Isso é a assinatura clássica de "meu read bateu ali por acaso porque é uma região universal", não presença real do patógeno. Então dá pra fechar essa pergunta: não há evidência de *Xylella* ou fitoplasma neste material.
 
 ---
 
@@ -96,11 +96,11 @@ E, por transparência: apareceram também 2 hits fracos, um pra *Xylella fastidi
 
 **[SLIDE: lista de famílias — proteases tipo veneno, mucinas, fosfolipases, EF-hand, laccase]**
 
-Voltando à primeira hipótese. Mesmo sem ter rodado ainda a etapa de predição de secretoma — que filtra quais proteínas realmente têm peptídeo sinal e são de fato secretadas —, a anotação já aponta famílias muito sugestivas: proteases do tipo veneno, um peptídeo salivar secretado, óxido nítrico sintase salivar, laccase, várias mucinas, fosfolipases A2 e B, e 78 domínios de ligação a cálcio, os EF-hand.
+Voltando à primeira hipótese. Rodamos a predição de secretoma (TMbed, que substitui SignalP6/TMHMM — essas duas exigem licença acadêmica que nunca conseguimos) e ela filtrou 1.171 proteínas (9,4%) como secretoma clássico de verdade — peptídeo sinal presente e no máximo 1 hélice transmembrana. Cruzando isso com os termos funcionais associados a fitotoxicidade em outros hemípteros, sobraram **35 candidatos concretos**: proteases tipo veneno, um peptídeo salivar secretado de alta expressão, mucinas, fosfolipases A2/B, carboxipeptidase tipo veneno, e domínios EF-hand de ligação a cálcio.
 
 Por que essas famílias chamam atenção? Porque proteases tipo veneno e fosfolipases já são descritas como efetores fitotóxicos em outros hemípteros, e mucinas em grande quantidade são consistentes com a formação daquela bainha salivar que a cigarrinha constrói ao redor do vaso do xilema enquanto se alimenta.
 
-Isso ainda não é uma resposta — é uma lista de suspeitos. O próximo passo do pipeline, que ainda está pendente, é rodar a predição de secretoma pra filtrar só quem é realmente secretado, cruzar com o nível de expressão, e comparar com achados de proteômica que o mesmo grupo já publicou pra essa espécie.
+Essa lista de 35 ainda não é uma resposta definitiva — é o funil final de uma lista muito maior. Mas ela ficou ainda mais interessante depois de uma rodada adicional de triagem que fizemos bem recentemente: testamos diretamente se algum patógeno microbiano (vírus, bactéria, fungo) poderia estar causando o amarelão em vez de uma toxina do próprio inseto — e nenhum se confirmou. *Xylella* e fitoplasma foram refutados (seção anterior), os vírus encontrados são todos linhagens já conhecidas como específicas de inseto, e uma busca por genes de toxina bacteriana/fúngica em toda a anotação não achou nenhuma fitotoxina clássica. Por eliminação, isso reforça — sem provar — que a explicação mais bem sustentada pelos dados de hoje é mesmo um composto salivar do próprio inseto. O próximo passo real agora é validação de bancada (proteômica/RNAi/ensaio de fitotoxicidade) nesses 35 candidatos, comparando com a proteômica que o mesmo grupo já publicou pra essa espécie.
 
 ---
 
@@ -108,9 +108,9 @@ Isso ainda não é uma resposta — é uma lista de suspeitos. O próximo passo 
 
 **[SLIDE: tabela de status do artigo.md, Seção 6]**
 
-Esse é o estado real do projeto hoje: montagem, anotação e a primeira camada de triagem de simbionte estão prontas. Predição de secretoma, priorização de efetor e uma segunda camada de confirmação de simbionte — essa via classificação direta dos contigs montados — ainda estão pendentes, esperando processamento em servidor.
+Esse é o estado real do projeto hoje: montagem, anotação, as duas camadas de confirmação de simbionte, secretoma, priorização de efetor, e uma rodada inteira de triagem de patógeno (vírus/bactéria/fungo) estão todas concluídas. O que falta agora não é mais rodar mais bioinformática exploratória — é validação de bancada dos 35 candidatos a efetor, e, se algum dia fizer sentido, sequenciamento dedicado (DNA de bacterioma, ou várias plantas sintomáticas vs. assintomáticas) para ir além do que uma única biblioteca de transcriptoma consegue responder.
 
-E eu queria fechar com o motivo de estar mostrando um projeto inacabado, e não um artigo publicado e redondo: porque isso *é* como bioinformática de verdade acontece. Vocês não vão sair de um transcriptoma direto pra uma resposta. Vão sair com um funil de candidatos, alguns achados sólidos — como esse endossimbionte —, e uma lista clara do que falta rodar. Cada figura que eu mostrei hoje corresponde a uma pergunta que vocês também vão poder fazer nos dados de vocês: minha montagem está completa? Está redundante? O que essas proteínas realmente são? E o que, dentro disso, pode responder à pergunta biológica que me trouxe até aqui?
+E eu queria fechar com o motivo de estar mostrando esse processo completo, incluindo os becos sem saída (a filogenia que não fechou, os 2 patógenos refutados), e não só os achados bonitos: porque isso *é* como bioinformática de verdade acontece. Vocês não vão sair de um transcriptoma direto pra uma resposta definitiva. Vão sair com um funil de candidatos, alguns achados sólidos — como esse endossimbionte —, algumas hipóteses eliminadas de forma honesta, e uma lista concreta do que ainda precisa de bancada. Cada figura que eu mostrei hoje corresponde a uma pergunta que vocês também vão poder fazer nos dados de vocês: minha montagem está completa? Está redundante? O que essas proteínas realmente são? E o que, dentro disso, pode responder à pergunta biológica que me trouxe até aqui — e o que definitivamente NÃO responde, mesmo parecendo promissor à primeira vista?
 
 ---
 
@@ -191,4 +191,8 @@ TransDecoder.Predict -t "${CDHIT_OUT}" --single_best_only
 | Cobertura Pfam / GO / KEGG / DIAMOND | 62,1% / 44,0% / 42,6% / 75,1% |
 | Eukaryota / Bacteria / Fungi / Viruses / não classificado | 70,0% / 4,3% / 2,1% / 0,2% / 25,4% |
 | Hits *Sulcia* / *Sodalis*-like | 57 / 1 |
-| Status pendente | Secretoma, priorização de efetores, Camada 2 de endossimbiontes |
+| Secretoma clássico (TMbed) / candidatos a efetor priorizados | 1.171 (9,4%) / 35 |
+| Xylella / fitoplasma — cobertura genoma-inteira (Camada 3) | 0,28% / 0,17% — **ambos refutados** |
+| Herbaspirillum spp. (censo completo de Bacteria, achado novo) | 88 hits |
+| Vírus confirmados por 2 fontes (todos específicos de artrópode) | 4 |
+| Status pendente | Validação de bancada dos 35 candidatos a efetor (proteômica/RNAi/ensaio de fitotoxicidade) |

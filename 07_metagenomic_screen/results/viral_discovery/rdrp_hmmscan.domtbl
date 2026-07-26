@@ -1,0 +1,34 @@
+#                                                                                 --- full sequence --- -------------- this domain -------------   hmm coord   ali coord   env coord
+# target name        accession   tlen query name                accession   qlen   E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from    to  from    to  acc description of target
+#------------------- ---------- -----      -------------------- ---------- ----- --------- ------ ----- --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ----- ---- ---------------------
+RdRP_1               PF00680.26   450 TRINITY_DN10734_c1_g1_i11.p1 -            820   5.6e-06   16.2   0.0   1   1   3.6e-07   1.1e-05   15.2   0.0   329   400   119   187    97   198 0.77 Viral RNA-dependent RNA polymerase
+RdRP_1               PF00680.26   450 TRINITY_DN10734_c1_g1_i5.p1 -            845   5.9e-06   16.1   0.0   1   1   3.7e-07   1.2e-05   15.2   0.0   329   400   119   187    97   198 0.77 Viral RNA-dependent RNA polymerase
+RdRP_1               PF00680.26   450 TRINITY_DN10734_c2_g1_i1.p1 -            767     5e-06   16.4   0.0   1   1   3.3e-07     1e-05   15.4   0.0   329   400   119   187    97   198 0.77 Viral RNA-dependent RNA polymerase
+RRM_RdRP1_2          PF26250.1     84 TRINITY_DN11520_c0_g2_i16.p1 -            455   1.1e-08   26.5   0.0   1   5     0.081       2.5   -0.3   0.0    20    60    30    70    26    77 0.76 RdRP1/2, RRM domain
+RRM_RdRP1_2          PF26250.1     84 TRINITY_DN11520_c0_g2_i16.p1 -            455   1.1e-08   26.5   0.0   2   5   0.00022    0.0068    8.0   0.0    18    58   116   155   109   171 0.81 RdRP1/2, RRM domain
+RRM_RdRP1_2          PF26250.1     84 TRINITY_DN11520_c0_g2_i16.p1 -            455   1.1e-08   26.5   0.0   3   5   0.00018    0.0056    8.2   0.0    32    60   223   251   196   258 0.86 RdRP1/2, RRM domain
+RRM_RdRP1_2          PF26250.1     84 TRINITY_DN11520_c0_g2_i16.p1 -            455   1.1e-08   26.5   0.0   4   5    0.0043      0.13    3.8   0.0    39    61   333   355   317   369 0.83 RdRP1/2, RRM domain
+RRM_RdRP1_2          PF26250.1     84 TRINITY_DN11520_c0_g2_i16.p1 -            455   1.1e-08   26.5   0.0   5   5      0.95        30   -3.7   0.0    25    44   407   426   406   430 0.77 RdRP1/2, RRM domain
+RdRP_1               PF00680.26   450 TRINITY_DN124330_c0_g4_i1.p2 -            107   8.2e-10   28.9   0.3   1   1   2.7e-11   8.3e-10   28.8   0.3   355   439    15   107     1   107 0.86 Viral RNA-dependent RNA polymerase
+CPV_RdRP_pol_dom     PF22212.2    369 TRINITY_DN242325_c0_g1_i1.p1 -           1375   1.6e-58  189.0   0.2   1   1   4.7e-58   4.9e-57  184.2   0.2     2   368   379   789   378   790 0.90 CPV, RNA-directed RNA polymerase, central polymerase domain
+CPV_RdRP_N           PF22209.2    248 TRINITY_DN242325_c0_g1_i1.p1 -           1375   5.2e-27   85.8   0.0   1   1   9.2e-28   9.5e-27   84.9   0.0    32   205   130   306   119   347 0.85 CPV, RNA-directed RNA polymerase, N-terminal
+CPV_RdRP_C           PF22213.2    343 TRINITY_DN242325_c0_g1_i1.p1 -           1375   1.7e-12   38.2   0.0   1   1   3.3e-13   3.4e-12   37.2   0.0    33   229  1037  1237  1016  1328 0.81 CPV, RNA-directed RNA polymerase, C-terminal
+RdRP_1               PF00680.26   450 TRINITY_DN36972_c1_g1_i1.p1 -            450   9.2e-06   15.5   0.0   1   1   5.7e-07   1.8e-05   14.6   0.0   334   405   256   324   236   339 0.80 Viral RNA-dependent RNA polymerase
+Flavi_NS5_thumb      PF20483.4    164 TRINITY_DN5315_c0_g1_i1.p1 -            942   1.1e-41  133.5   0.0   1   1   1.7e-42   1.8e-41  132.8   0.0     1   161   743   907   743   913 0.87 Flavivirus RNA-directed RNA polymerase, thumb domain
+Flavi_NS5            PF00972.26   451 TRINITY_DN5315_c0_g1_i1.p1 -            942   1.3e-33  107.2   0.0   1   1   2.9e-34     3e-33  106.0   0.0    46   446   353   734   344   737 0.80 Flavivirus RNA-directed RNA polymerase, fingers and palm domains
+RdRP_1               PF00680.26   450 TRINITY_DN5315_c0_g1_i1.p1 -            942   8.2e-10   28.8   0.0   1   1   1.7e-10   1.7e-09   27.8   0.0   169   392   520   754   457   768 0.71 Viral RNA-dependent RNA polymerase
+RRM_RdRP1_2          PF26250.1     84 TRINITY_DN59657_c1_g1_i9.p1 -            271   4.8e-07   21.2   0.0   1   1     3e-08   9.3e-07   20.3   0.0     2    72    65   130    64   137 0.81 RdRP1/2, RRM domain
+Permu_RdRp_palm      PF22152.2    357 TRINITY_DN6866_c3_g1_i7.p1 -            108   2.2e-10   30.8   2.1   1   3     9e-05    0.0028    7.4   0.1   126   161     6    41     1    45 0.88 Permutotetravirus RNA-dependent RNA polymerase palm domain
+Permu_RdRp_palm      PF22152.2    357 TRINITY_DN6866_c3_g1_i7.p1 -            108   2.2e-10   30.8   2.1   2   3   1.6e-06   4.9e-05   13.2   0.1   128   164    40    76    38    79 0.90 Permutotetravirus RNA-dependent RNA polymerase palm domain
+Permu_RdRp_palm      PF22152.2    357 TRINITY_DN6866_c3_g1_i7.p1 -            108   2.2e-10   30.8   2.1   3   3   8.8e-06   0.00027   10.8   0.0   135   162    79   106    75   108 0.93 Permutotetravirus RNA-dependent RNA polymerase palm domain
+RdRP_1               PF00680.26   450 TRINITY_DN9206_c0_g1_i1.p1 -            999   4.1e-07   20.0   0.0   1   1   2.4e-08   7.4e-07   19.1   0.0   196   404   552   750   540   756 0.74 Viral RNA-dependent RNA polymerase
+#
+# Program:         hmmscan
+# Version:         3.4 (Aug 2023)
+# Pipeline mode:   SCAN
+# Query file:      /home/eulalio/trinity_maharnava/data/transdecoder/trinity_nr95.fasta.transdecoder.pep
+# Target file:     rdrp_subset.hmm
+# Option settings: hmmscan -o rdrp_hmmscan.out --domtblout rdrp_hmmscan.domtbl --noali -E 1e-5 --cpu 16 rdrp_subset.hmm /home/eulalio/trinity_maharnava/data/transdecoder/trinity_nr95.fasta.transdecoder.pep 
+# Current dir:     /home/eulalio/trinity_maharnava/07_metagenomic_screen/viral_tmp
+# Date:            Sat Jul 25 20:00:45 2026
+# [ok]

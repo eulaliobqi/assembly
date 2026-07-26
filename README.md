@@ -24,7 +24,7 @@ RNA-seq reads were assembled using Trinity, annotated against multiple databases
 No study has yet chemically identified "the" toxin responsible for amarelao. A research group at UFV (Departamento de Bioquimica e Biologia Molecular) has been characterizing salivary/foam proteins of *M. spectabilis* by proteomics (Monteiro 2019, MSc dissertation, UFV -- candidate effectors including long-chain fatty acids; Rinaldi 2021, MSc dissertation, UFV -- salivary toxin/foam components; Rinaldi et al. 2026, *Arch. Insect Biochem. Physiol.* -- nymphal foam proteins + AlphaFold modeling). This transcriptome is intended as a complementary, transcript-level resource for that same research question, adding two analytical angles not yet explored for this species:
 
 1. **Candidate salivary effectors/toxins** (`06_effector_prioritization/`): cross-referencing predicted secreted proteins (SignalP+TMHMM) with functional categories reported as phytotoxic/defense-suppressing in other Hemiptera (venom-like proteases, salivary secreted peptides, laccases, mucins, Ca-binding/EF-hand proteins, phospholipases, cell-wall-degrading CAZymes), expression level (Salmon TPM), and overlap with the UFV group's proteomic findings.
-2. **Endosymbionts and microbial screening** (`07_metagenomic_screen/`): spittlebugs (Cercopidae) are known to carry obligate nutritional endosymbionts -- classically *Candidatus* Sulcia muelleri plus a co-symbiont, either *Zinderia insecticola* or, in some lineages, a *Sodalis*-like replacement (McCutcheon & Moran 2007, *PNAS* 104:19392-19397; Bennett & Moran 2013, *Genome Biol. Evol.* 5:1675-1688; Koga & Moran 2014, *ISME J.* 8:1237-1249). Foieri et al. (2022, *Bull. Insectology*) confirmed *Sulcia* by 16S rRNA in three South American pasture spittlebugs closely related to *Mahanarva* (*Notozulia entreriana*, *Deois mourei*, *Deois knoblauchii*), making its presence in *M. spectabilis* highly expected. Because spittlebugs feed exclusively on xylem, they are also a mechanistically plausible (though never published for this genus) candidate vector for xylem-limited plant pathogens such as *Xylella fastidiosa* -- unlike phloem-limited phytoplasmas, which are biologically implausible vectors for a xylem feeder.
+2. **Endosymbionts, pathogen screening and full microbiome census** (`07_metagenomic_screen/`, `08_metagenomic_deep/`): spittlebugs (Cercopidae) are known to carry obligate nutritional endosymbionts -- classically *Candidatus* Sulcia muelleri plus a co-symbiont, either *Zinderia insecticola* or, in some lineages, a *Sodalis*-like replacement (McCutcheon & Moran 2007, *PNAS* 104:19392-19397; Bennett & Moran 2013, *Genome Biol. Evol.* 5:1675-1688; Koga & Moran 2014, *ISME J.* 8:1237-1249). Foieri et al. (2022, *Bull. Insectology*) confirmed *Sulcia* by 16S rRNA in three South American pasture spittlebugs closely related to *Mahanarva* (*Notozulia entreriana*, *Deois mourei*, *Deois knoblauchii*), making its presence in *M. spectabilis* highly expected and confirmed here (see Key Results). Because spittlebugs feed exclusively on xylem, *Xylella fastidiosa* was a mechanistically plausible candidate vector hypothesis; **a dedicated screening round (raw-read genome-wide mapping, full 540-hit Bacteria + 256-hit Fungi genus census, RdRp-domain-directed viral discovery, and a microbial toxin/virulence keyword search) directly tested and refuted this and related pathogen hypotheses** (Xylella, Aster Yellows phytoplasma, plant-infecting viruses, phytopathogenic fungi/bacteria toxins) -- see Key Results Summary and `artigo.md` Sections 3.3-3.4 and 4 for full detail. By elimination, this reinforces the salivary effector/toxin hypothesis (item 1 above) as the best-supported explanation for amarelao given current data.
 
 ---
 
@@ -61,13 +61,24 @@ trinity_maharnava/
 |-- 06_effector_prioritization/      # Candidate salivary effectors/toxins (planned, see Biological Motivation)
 |
 |-- 07_metagenomic_screen/
-|   `-- 01_taxonomic_summary.py      # Taxonomic distribution + Sulcia/Zinderia/Sodalis-like candidate extraction
+|   |-- 01_taxonomic_summary.py      # Taxonomic distribution + Sulcia/Zinderia/Sodalis-like candidate extraction
+|   |-- 04_cross_validate_endosymbionts.py  # Layer 2: Whokaryote+Tiara structural cross-validation
+|   `-- results/                     # Camada 3 (2026-07-25): see below -- executed via direct commands
+|       |-- viral_discovery/         # RdRp HMM subset (31 Pfam families) + DIAMOND vs viral RefSeq
+|       |-- pathogen_confirmation/   # Xylella/phytoplasma genome-wide read mapping (REFUTED)
+|       |-- fungal_breakdown/        # Full 256-hit Fungi genus census
+|       |-- full_microbiome_census/  # Full 540-hit Bacteria genus census + toxin keyword search
+|       |-- blobtools_gc_tpm/        # GC% x TPM per-contig table + plot (Sulcia AT-richness confirmation)
+|       `-- completeness_checklist/  # Informal Sulcia gene-content checklist (NOT a CheckM2 equivalent)
+|
+|-- 08_metagenomic_deep/
+|   `-- results/phylogenetics/       # GroEL ML tree (Sulcia refs + Sodalis/Bacteroidetes outgroup) -- INCONCLUSIVE (bootstrap 49-72%, below 95% criterion)
 |
 |-- results/
 |   |-- annotation_complete.tsv      # Final merged annotation table (24 columns incl. cazy)
 |   |-- annotation_report.txt        # Summary statistics of annotation
 |   |-- taxon_lineage.tsv            # taxid -> full/reformatted NCBI lineage lookup (not versioned, see .gitignore)
-|   |-- endosymbiont_candidates/     # Sulcia/Sodalis-like hits + low-priority Xylella/phytoplasma leads
+|   |-- endosymbiont_candidates/     # Sulcia/Sodalis-like hits + Xylella/phytoplasma leads (now refuted, see 07_metagenomic_screen/results/pathogen_confirmation/)
 |   |-- go/                          # go_top20_{BP,CC,MF}.csv
 |   `-- kegg/                        # kegg_pathways.csv
 |
@@ -184,6 +195,33 @@ Step 9: Endosymbiont / Microbial Screening (07_metagenomic_screen/, done)
       `-- Layer 2: Whokaryote+Tiara structural eukaryote/prokaryote
           classification of assembled contigs, cross-validated against
           Layer 1 (04_cross_validate_endosymbionts.py)
+
+Step 10: Pathogen Screening / Full Microbiome Census (Camada 3, done 2026-07-25)
+  Raw FASTQ (gland-saliv_{1,2}.fq.gz, 86.7M read pairs) + assembled contigs
+  + annotation_complete.tsv, executed via direct commands during the
+  analysis session (not standalone numbered scripts, unlike steps 1-9 --
+  see Known Issues)
+      |
+      +-- Full genus-level census of ALL 540 Bacteria + 256 Fungi hits
+      |   (not just the pre-selected candidates from Layer 1)
+      |
+      +-- Viral discovery: 31 RdRp Pfam HMM families (hmmfetch from the
+      |   locally installed Pfam-A.hmm) x hmmscan on TransDecoder proteins,
+      |   + DIAMOND blastx of contigs vs NCBI RefSeq viral (722,107 seqs);
+      |   cross-referenced against the original 30 DIAMOND/NR virus hits,
+      |   10 of which were reclassified as Metaviridae/Eupolintoviridae
+      |   (host-genome retrotransposon-like elements, not infectious virus)
+      |
+      +-- Xylella fastidiosa / Aster Yellows phytoplasma: genome-wide
+      |   bowtie2 mapping of raw reads against real NCBI reference genomes,
+      |   breadth/depth of coverage computed, covered positions checked
+      |   against real GFF3 gene coordinates -- REFUTED (both leads)
+      |
+      +-- Toxin/virulence keyword search across all Bacteria+Fungi hits
+      |   (diamond_title/eggnog_desc/pfam_domains), independent of organism
+      |
+      `-- GroEL maximum-likelihood phylogeny (Sulcia refs + Sodalis/
+          Bacteroidetes outgroup, IQ-TREE ultrafast bootstrap) -- INCONCLUSIVE
 ```
 
 ---
@@ -353,16 +391,22 @@ python 04_functional_analysis/09_figures.py
 - BUSCO completeness (insecta_odb10): C:96.2% [S:39.9%, D:56.3%], F:1.9%, M:1.9%, n=1367
 - Annotation coverage (post merge-fix, see `results/annotation_report.txt`): 62.1% with Pfam domain, 44.0% with GO term, 42.6% with KEGG ortholog
 - **Dedicated dbCAN CAZyme annotation** (step 8b, `results/cazy/overview.tsv`): 468 proteins (3.8%) with >=1 CAZy family call (DIAMOND + dbCAN-HMM + dbCAN-sub against the real dbCAN database) vs. 175 (1.4%) from the low-sensitivity eggNOG-derived column -- critically, **16 proteins carry a GH28 or GH5\* (cellulase/pectinase-like) family call**, where eggNOG had found zero; these are new candidates for cell-wall-degrading phytotoxic effectors, folded into the effector prioritization ranking (step 8)
-- Taxonomic origin of best hits: 70.0% Eukaryota, 4.3% Bacteria, 2.1% Fungi (dominated by the entomopathogenic fungus *Metarhizium*), 0.2% Viruses, 25.4% unclassified
+- Taxonomic origin of best hits: 70.0% Eukaryota, 4.3% Bacteria, 2.1% Fungi (77% entomopathogenic overall -- dominant single genus is *Entomophthora* [96 hits], not *Metarhizium* [56 hits] as stated in an earlier version of this document), 0.2% Viruses, 25.4% unclassified -- see full genus-level census below
 - **Classical secretome** (step 7, TMbed, `results/secretome/secretome_classical.tsv`): 1,171 proteins (9.4%) with signal peptide AND <=1 TM segment; 1,238 proteins (9.9%) have a signal peptide call overall
 - **Candidate salivary effectors/toxins** (step 8, `results/effector_candidates/effector_candidates_ranked.tsv`): 35 proteins are both in the classical secretome AND match a curated toxin/effector term -- top hits include a salivary secreted protein (best DIAMOND hit: *Triatoma infestans*), a venom protease-like (best hit: *Macrosteles quadrilineatus*, a leafhopper), a venom serine carboxypeptidase, mucins, a venom dipeptidyl peptidase 4-like, and several EF-hand/Ca-binding proteins
 - **Endosymbiont candidates** (`results/endosymbiont_candidates/sulcia_sodalis_hits.tsv`): 57 proteins matching *Candidatus* Karelsulcia muelleri (~99% identity, classic housekeeping genes: 6-phosphofructokinase, GAPDH, GroEL, malic enzyme, translation factor IF-2) + 1 protein matching a *Sodalis*-like symbiont of *Philaenus spumarius* -- consistent with the obligate dual endosymbiosis reported for spittlebugs (see Biological Motivation)
-- 2 low-priority, single-hit leads for *Xylella fastidiosa* and phytoplasma (`results/endosymbiont_candidates/low_priority_pathogen_leads.tsv`) -- weak identity/generic domain for the *Xylella* hit, treated as exploratory noise pending further evidence
 - **Endosymbiont Layer 2 cross-validation** (`results/endosymbiont_candidates/endosymbionts_cross_validated.tsv`): Whokaryote+Tiara's independent, structural (gene-content-based, not sequence-similarity-based) eukaryote/prokaryote classification of assembled contigs confirms 3/60 candidates as concordant (predicted prokaryote) and 0 as discordant; the remaining 57 could not be evaluated because Whokaryote only classifies contigs >=5000bp and most endosymbiont candidates are single genes on short Trinity transcripts -- a coverage limitation of Layer 2, not evidence against the Layer 1 calls
+- **Endosymbiont Camada 3 evidence** (`07_metagenomic_screen/results/blobtools_gc_tpm/`, `08_metagenomic_deep/results/phylogenetics/`): GC% of the 37 Sulcia/Sodalis candidates with expression data (median 24.9%) is significantly lower than the rest of the annotated eukaryotic transcriptome (median 36.2%; Mann-Whitney p=8.1e-23), consistent with Sulcia's known AT-rich reduced genome. A GroEL maximum-likelihood phylogeny (Sulcia references + Sodalis/*Bacteroides fragilis* outgroup) was **inconclusive** -- the candidate did not nest within the Sulcia clade with adequate bootstrap support (49-72%, below the 95% threshold), reported as-is without further taxon resampling
+- **Pathogen screening -- Xylella/phytoplasma REFUTED** (`07_metagenomic_screen/results/pathogen_confirmation/`): the 2 low-priority single-hit leads from earlier annotation (`results/endosymbiont_candidates/low_priority_pathogen_leads.tsv`) were directly tested by genome-wide bowtie2 mapping of the ~173M raw reads against real NCBI reference genomes (*X. fastidiosa* subsp. *multiplex* GCF_042238405.1; Aster Yellows phytoplasma NC_007716.1+plasmids). Both show breadth of coverage <0.3%, with 98-100% of the (very sparse) covered positions falling inside conserved 16S/23S rRNA operons -- the classic signature of non-specific cross-mapping, not real pathogen presence
+- **Full microbiome census** (`07_metagenomic_screen/results/full_microbiome_census/`): all 540 Bacteria hits (not just pre-selected candidates) were grouped by genus. Notable finding: 88 hits (2nd-largest specific genus) to *Herbaspirillum*, a classic diazotrophic endophyte of tropical grasses **including *Brachiaria*/*Urochloa*, the exact host plant** -- not a pathogen, but evidence of plant-derived bacterial material captured via ingested xylem sap. All 256 Fungi hits were also grouped (77% entomopathogenic: *Entomophthora muscae*, *Metarhizium* spp., *Massospora cicadina*; *Fusarium* spp., 8 hits, is the only mechanistically plausible xylem-colonizing phytopathogen genus, but signal too weak to confirm)
+- **Viral discovery and reconciliation** (`07_metagenomic_screen/results/viral_discovery/`): RdRp-domain-directed screening (31 Pfam families) + DIAMOND vs NCBI RefSeq viral confirmed 4 real viruses with high confidence (domain + BLASTx identity), all arthropod-specific lineages (Jingmenvirus-like/*Wuhan flea virus*, Nodaviridae-like/*Boolarra virus*, Dicistroviridae-like/*Drosophila C virus*-*Nilaparvata lugens C virus*, Cypovirus-like) with no plant-pathogenicity precedent. Directed search for the Phytoreovirus RdRp family (PF27669) -- the classic Auchenorrhyncha-vectored plant virus group -- found **zero hits**. Cross-referencing against the original 30 DIAMOND/NR virus-flagged proteins revealed that 10 (`Halyomorpha halys erranti-like virus 1`) are actually Metaviridae (host-genome LTR retrotransposons, not infectious virus) and 2 more are Eupolintoviridae (Polinton-like elements) -- verified via live NCBI taxonomy lookup
+- **Microbial toxin/virulence keyword search**: no classical phytotoxin gene (coronatine, tabtoxin, syringomycin, NEP1-like necrosis-inducing proteins) found among Bacteria+Fungi hits; only universal bacterial toxin-antitoxin systems (RelE/RelB, VapBC, MazF -- persistence/stress regulation, unrelated to virulence) and one *Metarhizium* phospholipase (consistent with its known entomopathogenic, not phytopathogenic, role)
 
 ### Known Issues / Problemas Conhecidos
 
 The `annotation_complete.tsv` shipped in earlier commits had a stale merge (empty GO/KEGG/eggNOG-OG/COG columns; `is_fungi`/`is_eukaryote` flags always 0) because it had been generated by an older, out-of-sync version of the annotation script. This was diagnosed and fixed by `03_annotation/07_fix_annotation_merge.py`, which re-derives these fields directly from the raw `emapper.emapper.annotations` (matched by real header, not hardcoded column indices) and from the full (non-reformatted) NCBI lineage in `results/taxon_lineage.tsv`. The corresponding index bug in `auto_annotate.py::_parse_emapper` (`eggnog_og` read from the wrong column) was also patched so that future from-scratch runs do not reintroduce it. Post-fix counts were cross-checked against a prior known-good run hardcoded in `04_functional_analysis/plot_annotation.py` (Bacteria, Fungi, Viruses and Pfam counts matched exactly).
+
+**Camada 3 (pathogen screening/full microbiome census, 2026-07-25) was executed via direct commands during the analysis session, not as standalone numbered scripts** like steps 1-9 -- a departure from this repo's usual convention. This is a known reproducibility gap: the exact commands are documented in the project's session memory but not committed as reusable `.py`/`.sh` files in `07_metagenomic_screen/`/`08_metagenomic_deep/`. A 4th screening layer (CAT/BAT, contig-level taxonomic classification without Whokaryote's 5000bp minimum size cutoff) was designed but not executed -- the required database was confirmed at 91.6GB (GTDB) to 197.5GB (NCBI nr), judged disproportionate to the expected gain given shared server disk space; deferred as optional future work.
 
 **SignalP6/TMHMM were never installed** in this or two other lab projects (`RLPredictiOme/`, `caracterization-trypsin/`) because both tools require a DTU academic-license tarball download that was never completed, and neither is available on bioconda/conda-forge under any version. Step 7 was re-implemented around **TMbed** (Bernhofer & Rost 2022, *BMC Bioinformatics*), a pip-installable, fully local, no-login protein-language-model predictor that classifies signal peptide and TM helix/strand in one pass. Getting it running surfaced three real, unrelated dependency incompatibilities between TMbed's 2022-era code and the current (2026) package ecosystem, each fixed and pinned in `environment/env_secretome.yml`: (1) the latest `transformers` (v5) removed the `tokenizer.batch_encode_plus()` API TMbed's `embed.py` calls -- pinned `transformers<5`; (2) transformers' tokenizer-loading fallback path additionally requires `tiktoken` and `protobuf` even though the model only uses a plain SentencePiece `T5Tokenizer`; (3) a bundled/partial local model cache directory inside the installed `tmbed` package (missing `spiece.model`) caused an unrelated-looking `AttributeError`/`ValueError` chain until cleared, forcing a fresh download from the `Rostlab/prot_t5_xl_half_uniref50-enc` HuggingFace repo.
 
@@ -384,6 +428,7 @@ Database/tool citations:
 - dbCAN: Zheng, J. et al. (2023). dbCAN3: automated carbohydrate-active enzyme and substrate annotation. *Nucleic Acids Research* 51(W1), W115-W121.
 - Whokaryote: Pronk, L.J.U. & Medema, M.H. (2022). Whokaryote: distinguishing eukaryotic and prokaryotic contigs in metagenomes based on gene structure. *Microbial Genomics* 8(5), 000823.
 - Tiara: Karlicki, M., Antonowicz, S. & Karnkowska, A. (2022). Tiara: deep learning-based classification system for eukaryotic sequences. *Bioinformatics* 38(2), 344-350.
+- Shi, M. et al. (2016). Redefining the invertebrate RNA virosphere. *Nature* 540, 539-543. (RdRp-domain-directed viral discovery precedent, Camada 3)
 
 Biological background citations:
 - Backus, E.A., Serrano, M.S. & Ranger, C.M. (2005). Mechanisms of hopperburn: an overview of insect taxonomy, behavior, and physiology. *Annual Review of Entomology* 50, 125-151.

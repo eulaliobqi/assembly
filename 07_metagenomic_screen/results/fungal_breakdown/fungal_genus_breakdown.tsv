@@ -1,0 +1,8 @@
+genero_especie	n_hits	categoria	relevante_amarelao
+Entomophthora muscae	96	Entomopatogeno (Entomophthorales, "zombie fly fungus")	Nao - patogeno do proprio inseto, nao da planta
+Neoconidiobolus thromboides (+var.)	26	Entomopatogeno (Entomophthorales)	Nao
+Massospora cicadina	18	Entomopatogeno especifico de cigarras periodicas (Cicadidae)	Nao - mesmo grupo Hemiptera mas insecto-especifico, nao planta
+Metarhizium spp. (robertsii/anisopliae/acridum/humberi/brunneum/majus/album)	~57	Entomopatogeno classico, usado como biocontrole de insetos	Nao - relevante para controle biologico da cigarrinha, nao para causa do amarelao
+Erysiphe pulchra	15	Fitopatogeno (oidio/powdery mildew, biotrofico foliar)	Improvavel - oidio ataca superficie foliar, nao xilema; sem precedente em Brachiaria/Urochloa
+Fusarium spp. (avenaceum/oxysporum/vanettenii/graminearum/longipes)	8	Fitopatogeno (murcha vascular, F. oxysporum coloniza xilema)	Candidato mais plausivel mecanisticamente (xilema=sintoma do amarelao), mas sinal fraco (8 hits, so 1 diamond best-hit cada, sem confirmacao independente)
+diversos generos singleton (Rhizopus/Trichoderma/Aspergillus/Claviceps/Mortierella/etc.)	~34	Ambiguo/saprofita ambiental comum	Nao - ruido provavel, 1 hit cada, sem padrao

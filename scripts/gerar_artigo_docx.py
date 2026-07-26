@@ -94,6 +94,54 @@ FIGURE_CAPTIONS = {
         "proteina salivar secretada (melhor hit DIAMOND: Triatoma infestans) e "
         "uma protease tipo veneno (melhor hit: Macrosteles quadrilineatus)."
     ),
+    "microbiome_census": (
+        "Figura 8. Censo completo do microbioma bacteriano e fungico (Camada 3), "
+        "todos os hits agrupados por genero -- nao apenas os candidatos ja "
+        "pre-selecionados em sessoes anteriores. (A) 540 hits de Bacteria: "
+        "destaque para Herbaspirillum spp. (88 hits, laranja -- endofito classico "
+        "de Brachiaria/Urochloa, provavel origem vegetal via xilema ingerido), "
+        "Candidatus Karelsulcia muelleri (57 hits, verde -- endossimbionte ja "
+        "confirmado) e Xylella+fitoplasma (2 hits, vermelho -- testados e "
+        "REFUTADOS por mapeamento genoma-inteiro, ver Figura 9B). (B) 256 hits de "
+        "Fungi: 77% (196) sao entomopatogenicos (azul), Fusarium spp. (8 hits, "
+        "laranja) e o unico genero fitopatogenico mecanisticamente plausivel mas "
+        "com sinal fraco."
+    ),
+    "pathogen_screening": (
+        "Figura 9. Triagem de patogeno microbiano causador do amarelao (Camada 3) "
+        "-- nenhum confirmado. (A) Reclassificacao taxonomica (NCBI, consulta ao "
+        "vivo) dos 30 hits virais da anotacao DIAMOND/NR original: 12 sao "
+        "elementos retrotransposon-like do proprio genoma do inseto (Metaviridae/"
+        "Eupolintoviridae), 4 sao micovirus (infectam os fungos ja detectados na "
+        "Figura 8B) e 14 sao virus genuinos de artropode sem precedente "
+        "fitopatogenico -- busca dirigida pela familia RdRp de Phytoreovirus "
+        "(vetorado por Auchenorrhyncha) nao teve nenhum hit. (B) Amplitude de "
+        "cobertura genoma-inteira do mapeamento dos ~173 milhoes de reads brutos "
+        "contra os genomas de referencia completos de Xylella fastidiosa subsp. "
+        "multiplex e do fitoplasma Aster Yellows: <0,3% em ambos os casos, com "
+        "98-100% das poucas posicoes cobertas caindo em operons de rRNA "
+        "conservado (nao presenca real do patogeno) -- ambos REFUTADOS."
+    ),
+    "blobplot_gc_tpm": (
+        "Figura 10. GC% x TPM por contig (estilo BlobTools), destacando os 37 "
+        "candidatos Sulcia/Sodalis com dados de expressao. A mediana de GC dos "
+        "candidatos (24,9%) e significativamente menor que a do restante do "
+        "transcriptoma eucariotico anotado (36,2%; Mann-Whitney p=8,1x10^-23), "
+        "consistente com o genoma extremamente reduzido e rico em AT ja descrito "
+        "para Sulcia na literatura (Bennett & Moran 2013). O ponto verde isolado "
+        "em ~45% GC e o unico hit Sodalis-like, consistente com o GC mais alto "
+        "esperado para esse co-simbionte."
+    ),
+    "groel_phylogeny": (
+        "Figura 11. Filogenia de maxima verossimilhanca do gene GroEL (candidato "
+        "de M. spectabilis + referencias de Candidatus Karelsulcia muelleri + "
+        "outgroup Sodalis glossinidius/Bacteroides sp., IQ-TREE, bootstrap "
+        "ultrarrapido 1000 replicas). RESULTADO INCONCLUSIVO: o candidato de M. "
+        "spectabilis nao se agrupa dentro do clado Karelsulcia com suporte "
+        "estatistico adequado (bootstrap 49-72%, abaixo do criterio de 95% "
+        "adotado como sucesso) -- reportado como obtido, sem reamostragem "
+        "taxonomica adicional para nao distorcer o achado."
+    ),
 }
 
 FIG_MARKER_RE = re.compile(r"^\[\[FIG:([\w-]+)\]\]$")

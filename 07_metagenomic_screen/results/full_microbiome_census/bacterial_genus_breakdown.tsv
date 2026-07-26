@@ -1,0 +1,20 @@
+categoria	n_hits	interpretacao
+Gammaproteobacteria sp. (nao classificado)	118	Maior categoria isolada, mas taxonomicamente nao-informativa - hit de baixa resolucao, nao permite inferencia de especie
+Herbaspirillum (provavel origem vegetal)	88	Genero classico de endofito diazotrofico de gramineas tropicais, incluindo Brachiaria/Urochloa (o hospedeiro exato da cigarrinha). Segunda maior categoria especifica - provavel material vegetal capturado via seiva de xilema ingerida, nao e patogeno conhecido de planta ou inseto
+Chryseobacterium/Flavobacteriaceae (generalista)	71	Genero ambiental/associado a inseto comum (ja reportado em intestino de mosquitos etc.), nao fitopatogenico classico
+Enterobacterales/Enterobacter (generalista)	59	Familia comum em microbiota de inseto e endofitos (E. asburiae, E. cloacae, E. ludwigii, E. hormaechei) - generalistas, nao classicos causadores de amarelao
+Sulcia (endossimbionte, ja caracterizado)	57	Mutualista nutricional obrigatorio, ja confirmado por GC%/identidade/checklist (Bloco 5) - background esperado, nao alvo
+Outro genero singleton/baixa contagem (ambiental diverso)	47	Dezenas de generos ambientais de solo/planta com 1-3 hits cada (Pseudomonas spp. genericas, Stenotrophomonas, Agrobacterium, Burkholderia, Rhizobium, etc.) - sem padrao claro, nivel de ruido
+Klebsiella (oportunista/vies de banco)	31	Oportunista comum, super-representado em bancos de referencia (NR) - alta contagem pode refletir vies de sequenciamento de referencia, nao abundancia real
+Acinetobacter (generalista/oportunista)	20	Ambiental/oportunista comum
+Cyanobacteria (provavel origem vegetal/ambiental)	18	Fotossintetica, provavel contaminacao de superficie foliar/ambiental via xilema ingerido
+Patogeno humano/aviario (provavel vies de banco NR)	14	Salmonella enterica (varias), Shigella flexneri, Staphylococcus aureus, Streptococcus pneumoniae, Mycobacteroides abscessus, Riemerella anatipestifer, Cronobacter sakazakii - amplamente sequenciados em NR; hits singleton a genes conservados batem por vies de representacao no banco, nao presenca real biologicamente plausivel num inseto de gramineas
+Wolbachia (endossimbionte reprodutivo)	6	Endossimbionte reprodutivo comum em artropodes, background esperado, nao relacionado a planta
+Simbionte marinho (hospedeiro impossivel, provavel artefato)	6	Solemya velum gill symbiont, Candidatus Thiodiazotropha taylori - simbiontes de moluscos marinhos, biologicamente impossivel neste sistema; confirma que DIAMOND best-hit aponta as vezes para organismo taxonomicamente implausivel quando o gene conservado nao esta bem representado no NR para o taxon real
+Sodalis (co-simbionte, ja caracterizado)	1	Ja confirmado (Bloco 5)
+Xylella fastidiosa subsp. multiplex	1	JA TESTADO E REFUTADO por mapeamento genoma-inteiro (Bloco 2) - cobertura 0,28%, 98% do sinal e cross-mapping de rRNA
+Aster yellows phytoplasma	1	JA TESTADO E REFUTADO por mapeamento genoma-inteiro (Bloco 2) - cobertura 0,17%, 100% do sinal e cross-mapping de rRNA
+Pseudomonas syringae pv. actinidiae	1	Patogeno real, mas de KIWI (cancro bacteriano) - hospedeiro errado, n=1, mesmo nivel de cautela que os leads de Xylella/fitoplasma antes de serem testados - nao testado por mapeamento (sinal fraco demais para justificar)
+Candidatus Erwinia dacicola	1	Simbionte conhecido da mosca-da-azeitona (Bactrocera oleae) - sistema hospedeiro completamente diferente, n=1, provavel hit espurio de gene conservado
+
+TOTAL_VERIFICADO	540	Soma exata confirmada programaticamente contra annotation_complete.tsv (is_bacteria==1)
