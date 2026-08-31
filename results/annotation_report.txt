@@ -5,7 +5,7 @@
   With GO terms         : 5476 (44.0%)  [ref: 9197]
   With KEGG KO          : 5298 (42.6%)  [ref: 9197]
   With Pfam domain      : 7732 (62.1%)  [ref: 7732]
-  With CAZy annotation  : 175 (1.4%)  [new column]
+  With CAZy annotation  : 468 (3.8%)  [dbCAN3, dedicated run]
 
   Taxonomic classification of best hits (recomputed from full lineage):
     Eukaryota           : 8711  [ref: 8455]
