@@ -50,7 +50,7 @@ TIP_COLORS = {
 
 plt.rcParams.update({
     "font.family":  "Arial",
-    "font.size":    10,
+    "font.size":    11,
     "axes.linewidth": 0.8,
 })
 
@@ -82,7 +82,7 @@ for text in ax.texts:
         if text.get_text().strip() == label:
             text.set_color(TIP_COLORS[key])
             text.set_fontweight("bold" if key.startswith("TRINITY") else "normal")
-            text.set_fontsize(9.5)
+            text.set_fontsize(10.5)
 
 ax.set_xlabel("Distancia (substituicoes/sitio)")
 ax.set_ylabel("")
@@ -94,7 +94,7 @@ ax.set_title(
     "Filogenia de maxima verossimilhanca (GroEL) -- RESULTADO INCONCLUSIVO\n"
     "Candidato de M. spectabilis nao se agrupa no clado Karelsulcia com suporte adequado "
     "(bootstrap 49-72%, abaixo do criterio de 95%)",
-    loc="left", fontweight="bold", fontsize=10.5, pad=14)
+    loc="left", fontweight="bold", fontsize=11.5, pad=14)
 
 legend_items = [
     ("Ca. Karelsulcia muelleri (referencias)", "#1A9641"),
@@ -104,10 +104,10 @@ legend_items = [
 ]
 patches = [plt.Line2D([0], [0], color=c, lw=3) for _, c in legend_items]
 labels = [l for l, _ in legend_items]
-ax.legend(patches, labels, loc="lower right", frameon=False, fontsize=8)
+ax.legend(patches, labels, loc="lower right", frameon=False, fontsize=9)
 
 ax.text(0, -0.14, "Numeros nos ramos = suporte de bootstrap ultrarrapido (IQ-TREE, 1000 replicas)",
-        transform=ax.transAxes, fontsize=7.8, color="#555555")
+        transform=ax.transAxes, fontsize=8.8, color="#555555")
 
 # --- save ---------------------------------------------------------------------
 

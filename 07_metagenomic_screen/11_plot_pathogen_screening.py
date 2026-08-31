@@ -42,12 +42,12 @@ PATHOGENS = [
 
 plt.rcParams.update({
     "font.family":       "Arial",
-    "font.size":         10,
-    "axes.titlesize":    11,
-    "axes.labelsize":    10,
-    "xtick.labelsize":   9,
-    "ytick.labelsize":   9,
-    "legend.fontsize":   8,
+    "font.size":         11,
+    "axes.titlesize":    12,
+    "axes.labelsize":    11,
+    "xtick.labelsize":   10,
+    "ytick.labelsize":   10,
+    "legend.fontsize":   9,
     "axes.linewidth":    0.8,
     "xtick.major.width": 0.8,
     "ytick.major.width": 0.8,
@@ -71,20 +71,20 @@ colors = [c[2] for c in VIRUS_CATEGORIES]
 y = np.arange(len(labels))
 ax1.barh(y, vals, height=0.55, color=colors, zorder=3)
 for i, v in enumerate(vals):
-    ax1.text(v + VIRUS_TOTAL * 0.02, i, f"{v}", va="center", fontsize=10, fontweight="bold")
+    ax1.text(v + VIRUS_TOTAL * 0.02, i, f"{v}", va="center", fontsize=11, fontweight="bold")
 ax1.set_yticks(y)
-ax1.set_yticklabels(labels, fontsize=9)
+ax1.set_yticklabels(labels, fontsize=10)
 ax1.set_xlabel("N de hits (dos 30 originais)")
 ax1.set_xlim(0, VIRUS_TOTAL * 1.25)
 ax1.set_title("A   Reclassificacao dos 30 hits virais\n(anotacao DIAMOND/NR original)",
-              loc="left", fontweight="bold", fontsize=10.5, pad=8)
+              loc="left", fontweight="bold", fontsize=11.5, pad=8)
 ax1.grid(axis="x", color="#e0e0e0", lw=0.5, zorder=0)
 ax1.tick_params(axis="y", length=0)
 ax1.text(0, -0.85,
           f"Dos {VIRUS_RDRP_CONFIRMED} virus genuinos confirmados por 2 fontes independentes\n"
           f"(dominio RdRp + identidade BLASTx), nenhum tem precedente de fitopatogenicidade.\n"
           f"Busca dirigida pela familia RdRp de Phytoreovirus: 0 hits.",
-          fontsize=7.8, color="#555555", va="top")
+          fontsize=8.8, color="#555555", va="top")
 
 # --- panel B: Xylella/phytoplasma genome-wide coverage -------------------------
 
@@ -98,23 +98,23 @@ bars = ax2.barh(y2, breadth, height=0.45, color="#D7191C", zorder=3)
 for i, (b, r) in enumerate(zip(breadth, reads)):
     pct_reads = 100 * r / total_reads
     ax2.text(b + 0.05, i, f"{b}% da cobertura\n({r:,} reads, {pct_reads:.4f}% do total)",
-              va="center", fontsize=8.3, fontweight="bold")
+              va="center", fontsize=9.3, fontweight="bold")
 ax2.set_yticks(y2)
-ax2.set_yticklabels(labels_b, fontsize=8.7)
+ax2.set_yticklabels(labels_b, fontsize=9.7)
 ax2.set_xlabel("Amplitude de cobertura genoma-inteira (%)")
 ax2.set_xlim(0, 3.2)
 ax2.set_title("B   Xylella/fitoplasma: cobertura genoma-inteira\n(mapeamento dos ~173M reads brutos)",
-              loc="left", fontweight="bold", fontsize=10.5, pad=8)
+              loc="left", fontweight="bold", fontsize=11.5, pad=8)
 ax2.grid(axis="x", color="#e0e0e0", lw=0.5, zorder=0)
 ax2.tick_params(axis="y", length=0)
 ax2.text(0, -0.85,
           "98,0% (Xylella) e 100% (fitoplasma) das poucas posicoes cobertas\n"
           "caem dentro de operons de rRNA 16S/23S (conferido via GFF3 real) --\n"
           "cross-mapping de regiao conservada, nao presenca real. AMBOS REFUTADOS.",
-          fontsize=7.8, color="#555555", va="top")
+          fontsize=8.8, color="#555555", va="top")
 
 fig.suptitle("Triagem de patogeno microbiano causador do amarelao (Camada 3) -- nenhum confirmado",
-             fontsize=12.5, fontweight="bold", y=0.965)
+             fontsize=13.5, fontweight="bold", y=0.965)
 
 # --- save ---------------------------------------------------------------------
 

@@ -20,7 +20,7 @@
 | Fitoreovirus (marcador especifico PF27669/PF27845) | Busca dirigida, nenhum hit em nenhum contig | - | - | **AUSENTE** — hipotese mais direta de "virus vetorado por Auchenorrhyncha causando doenca de planta" sem suporte nos dados atuais |
 | Fusarium spp. (murcha vascular, coloniza xilema) | 8 hits DIAMOND, generos fitopatogenicos conhecidos | Sem confirmacao independente (sem Kraken2/mapeamento dedicado) | - | **INCONCLUSIVO** — candidato mais plausivel mecanisticamente (xilema=sintoma do amarelao) mas sinal fraco |
 | Erysiphe pulchra (oidio) | 15 hits DIAMOND | Mecanisticamente improvavel (ataca folha, nao xilema) | - | **IMPROVAVEL** |
-| Entomophthora muscae + Massospora + Metarhizium (77% dos hits de Fungi) | Dominante | Entomopatogenicos, do proprio inseto | - | **IRRELEVANTE para o amarelao** (mas relevante para biologia/controle do inseto) |
+| Entomophthora muscae + Massospora + Metarhizium (76,6% dos hits de Fungi) | Dominante | Entomopatogenicos, do proprio inseto | - | **IRRELEVANTE para o amarelao** (mas relevante para biologia/controle do inseto) |
 | Sulcia/Karelsulcia (endossimbionte obrigatorio) | GC% Mann-Whitney p=8e-23 | Identidade BLAST 99,4% | Filogenia GroEL INCONCLUSIVA (bootstrap 49-72%, abaixo do criterio de 95%) | **Simbionte confirmado (2 de 3 fontes), mas e mutualista conhecido — NAO e patogeno, e pano de fundo** |
 
 ## Limitacoes que permanecem validas para qualquer conclusao

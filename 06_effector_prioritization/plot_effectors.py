@@ -25,12 +25,12 @@ FIG_DIR = BASE / "figures"
 
 plt.rcParams.update({
     "font.family":       "Arial",
-    "font.size":         10,
-    "axes.titlesize":    11,
-    "axes.labelsize":    10,
-    "xtick.labelsize":   9,
-    "ytick.labelsize":   8,
-    "legend.fontsize":   9,
+    "font.size":         11,
+    "axes.titlesize":    12,
+    "axes.labelsize":    11,
+    "xtick.labelsize":   10,
+    "ytick.labelsize":   9,
+    "legend.fontsize":   10,
     "axes.linewidth":    0.8,
     "axes.spines.top":   False,
     "axes.spines.right": False,

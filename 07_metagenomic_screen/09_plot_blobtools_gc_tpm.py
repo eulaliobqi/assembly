@@ -42,12 +42,12 @@ CAT_ALPHA = {"unclassified": 0.25, "Eukaryota": 0.35, "Fungi": 0.55, "Sulcia/Sod
 
 plt.rcParams.update({
     "font.family":       "Arial",
-    "font.size":         10,
-    "axes.titlesize":    11,
-    "axes.labelsize":    10,
-    "xtick.labelsize":   9,
-    "ytick.labelsize":   9,
-    "legend.fontsize":   8.5,
+    "font.size":         11,
+    "axes.titlesize":    12,
+    "axes.labelsize":    11,
+    "xtick.labelsize":   10,
+    "ytick.labelsize":   10,
+    "legend.fontsize":   9.5,
     "axes.linewidth":    0.8,
     "xtick.major.width": 0.8,
     "ytick.major.width": 0.8,
@@ -77,18 +77,18 @@ for cat in CAT_ORDER:
 ax.axvline(euk.median(), color="#666666", lw=0.9, ls="--", zorder=1)
 ax.axvline(sul.median(), color="#1A9641", lw=1.3, ls="--", zorder=5)
 ax.text(euk.median() + 0.5, ax.get_ylim()[1] * 0.96, f"mediana Eukaryota\n{euk.median():.1f}%",
-        fontsize=7.8, color="#555555", va="top")
+        fontsize=8.8, color="#555555", va="top")
 ax.text(sul.median() - 0.5, ax.get_ylim()[1] * 0.96, f"mediana Sulcia/Sodalis\n{sul.median():.1f}%",
-        fontsize=7.8, color="#1A9641", va="top", ha="right", fontweight="bold")
+        fontsize=8.8, color="#1A9641", va="top", ha="right", fontweight="bold")
 
 ax.set_xlabel("GC% do contig")
 ax.set_ylabel("log10(TPM + 1)  [proxy de cobertura via expressao Salmon]")
 ax.set_title(
     "GC% x TPM por contig -- candidatos Sulcia/Sodalis destacados\n"
     f"Mann-Whitney (Sulcia/Sodalis < Eukaryota): p = {pval:.1e}",
-    loc="left", fontweight="bold", fontsize=11, pad=10)
+    loc="left", fontweight="bold", fontsize=12, pad=10)
 ax.grid(color="#eeeeee", lw=0.5, zorder=0)
-ax.legend(loc="upper right", frameon=False, fontsize=8.3, markerscale=1.4)
+ax.legend(loc="upper right", frameon=False, fontsize=9.3, markerscale=1.4)
 
 # --- save ---------------------------------------------------------------------
 

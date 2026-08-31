@@ -78,12 +78,12 @@ GROUP_LABELS = {
 
 plt.rcParams.update({
     "font.family":       "Arial",
-    "font.size":         10,
-    "axes.titlesize":    11,
-    "axes.labelsize":    10,
-    "xtick.labelsize":   8.5,
-    "ytick.labelsize":   8.5,
-    "legend.fontsize":   7.5,
+    "font.size":         11,
+    "axes.titlesize":    12,
+    "axes.labelsize":    11,
+    "xtick.labelsize":   9.5,
+    "ytick.labelsize":   9.5,
+    "legend.fontsize":   8.5,
     "axes.linewidth":    0.8,
     "xtick.major.width": 0.8,
     "ytick.major.width": 0.8,
@@ -110,12 +110,12 @@ def plot_panel(ax, data, total, title, subtitle):
     y = np.arange(len(labels))
     ax.barh(y, vals, height=0.62, color=colors, zorder=3)
     for i, v in enumerate(vals):
-        ax.text(v + total * 0.008, i, f"{v}", va="center", fontsize=8, fontweight="bold", color="#222222")
+        ax.text(v + total * 0.008, i, f"{v}", va="center", fontsize=9, fontweight="bold", color="#222222")
     ax.set_yticks(y)
-    ax.set_yticklabels(labels, fontsize=8.5)
+    ax.set_yticklabels(labels, fontsize=9.5)
     ax.set_xlabel("N de proteinas (melhor hit DIAMOND)")
     ax.set_xlim(0, max(vals) * 1.18)
-    ax.set_title(f"{title}\n{subtitle}", loc="left", fontweight="bold", fontsize=11, pad=10)
+    ax.set_title(f"{title}\n{subtitle}", loc="left", fontweight="bold", fontsize=12, pad=10)
     ax.grid(axis="x", color="#e0e0e0", lw=0.5, zorder=0)
     ax.tick_params(axis="y", length=0)
 
@@ -123,7 +123,7 @@ def plot_panel(ax, data, total, title, subtitle):
     patches = [plt.Rectangle((0, 0), 1, 1, color=GROUP_COLORS[g]) for g in present_groups]
     legend_labels = [GROUP_LABELS[g] for g in present_groups]
     ax.legend(patches, legend_labels, loc="lower right", frameon=False,
-              fontsize=7.3, handlelength=1.0, handletextpad=0.5)
+              fontsize=8.3, handlelength=1.0, handletextpad=0.5)
 
 
 plot_panel(ax1, BACTERIA, BACTERIA_TOTAL,
@@ -132,9 +132,9 @@ plot_panel(ax1, BACTERIA, BACTERIA_TOTAL,
 
 plot_panel(ax2, FUNGI, FUNGI_TOTAL,
            "B   Censo completo de Fungi (256 hits, todos os generos)",
-           f"Total: {FUNGI_TOTAL} proteinas -- 77% (196) sao entomopatogenicos, irrelevantes para o amarelao")
+           f"Total: {FUNGI_TOTAL} proteinas -- 76.6% (196) sao entomopatogenicos, irrelevantes para o amarelao")
 
-fig.suptitle("Censo completo do microbioma bacteriano e fungico (Camada 3)", fontsize=13, fontweight="bold", y=0.985)
+fig.suptitle("Censo completo do microbioma bacteriano e fungico (Camada 3)", fontsize=14, fontweight="bold", y=0.985)
 
 # --- save ---------------------------------------------------------------------
 

@@ -73,11 +73,11 @@ KEGG_CAT_COLORS = {
 
 plt.rcParams.update({
     "font.family":       "Arial",
-    "font.size":         9,
-    "axes.titlesize":    10,
-    "axes.labelsize":    9,
-    "xtick.labelsize":   8,
-    "ytick.labelsize":   8,
+    "font.size":         10,
+    "axes.titlesize":    11,
+    "axes.labelsize":    10,
+    "xtick.labelsize":   9,
+    "ytick.labelsize":   9,
     "axes.linewidth":    0.8,
     "axes.spines.top":   False,
     "axes.spines.right": False,
@@ -304,10 +304,10 @@ def plot_go_distribution(top_dfs, out_base="go_distribution", total=TOTAL_PROTEI
         for i, cnt in enumerate(df["count"]):
             pct = 100.0 * cnt / total
             ax.text(cnt + max(df["count"]) * 0.015, i,
-                    "%.1f%%" % pct, va="center", ha="left", fontsize=7.5)
+                    "%.1f%%" % pct, va="center", ha="left", fontsize=8.5)
 
         ax.set_yticks(y)
-        ax.set_yticklabels(labels, fontsize=7.5)
+        ax.set_yticklabels(labels, fontsize=8.5)
         ax.invert_yaxis()
         ax.set_xlabel("Number of proteins")
         ax.set_title(NS_LABELS[ns], fontweight="bold", pad=6)
@@ -318,7 +318,7 @@ def plot_go_distribution(top_dfs, out_base="go_distribution", total=TOTAL_PROTEI
     fig.suptitle(
         "GO Term Distribution - Salivary Gland Proteome\n"
         "(n = %s proteins, GO depth >= %d)" % (f"{total:,}", min_depth),
-        fontsize=11, fontweight="bold", y=1.02
+        fontsize=12, fontweight="bold", y=1.02
     )
     fig.tight_layout()
 
@@ -449,10 +449,10 @@ def plot_kegg_bar(df, top_n=20, total=TOTAL_PROTEINS, out_base="kegg_pathways_ba
         ax.text(bar.get_width() + max(top_df["protein_count"]) * 0.015,
                 bar.get_y() + bar.get_height() / 2,
                 "%d (%.1f%%)" % (cnt, pct),
-                va="center", ha="left", fontsize=7.5)
+                va="center", ha="left", fontsize=8.5)
 
     ax.set_yticks(y)
-    ax.set_yticklabels(labels, fontsize=8)
+    ax.set_yticklabels(labels, fontsize=9)
     ax.set_xlabel("Number of proteins")
     ax.set_title("Top %d KEGG Pathways - Salivary Gland Proteome\n(n = %s proteins)"
                  % (top_n, f"{total:,}"), fontweight="bold", pad=6)
@@ -464,7 +464,7 @@ def plot_kegg_bar(df, top_n=20, total=TOTAL_PROTEINS, out_base="kegg_pathways_ba
     handles = [mpatches.Patch(color=KEGG_CAT_COLORS.get(c, "#BDBDBD"), label=c)
                for c in sorted(unique_cats)]
     ax.legend(handles=handles, loc="lower right", frameon=False,
-              fontsize=8, title="KEGG Category", title_fontsize=8)
+              fontsize=9, title="KEGG Category", title_fontsize=10)
 
     fig.tight_layout()
     fig.savefig(out_base + ".png",  dpi=300, bbox_inches="tight", facecolor="white")
@@ -490,10 +490,10 @@ def plot_kegg_bubble(df, top_n=30, total=TOTAL_PROTEINS, out_base="kegg_pathways
         label = row["name"][:42] + "..." if len(row["name"]) > 42 else row["name"]
         ax.annotate(label, (x, row["protein_count"]),
                     xytext=(5, 3), textcoords="offset points",
-                    fontsize=6.5, ha="left", va="bottom")
+                    fontsize=7.5, ha="left", va="bottom")
 
     ax.set_xticks(list(cat_x.values()))
-    ax.set_xticklabels(list(cat_x.keys()), rotation=28, ha="right", fontsize=8)
+    ax.set_xticklabels(list(cat_x.keys()), rotation=28, ha="right", fontsize=9)
     ax.set_ylabel("Number of proteins")
     ax.set_title(
         "KEGG Pathway Distribution - Salivary Gland Proteome\n"
@@ -505,7 +505,7 @@ def plot_kegg_bubble(df, top_n=30, total=TOTAL_PROTEINS, out_base="kegg_pathways
     handles = [mpatches.Patch(color=KEGG_CAT_COLORS.get(c, "#BDBDBD"), label=c)
                for c in cats]
     ax.legend(handles=handles, loc="upper right", frameon=False,
-              fontsize=8, title="KEGG Category", title_fontsize=8)
+              fontsize=9, title="KEGG Category", title_fontsize=10)
 
     fig.tight_layout()
     fig.savefig(out_base + ".png",  dpi=300, bbox_inches="tight", facecolor="white")

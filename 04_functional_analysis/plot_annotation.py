@@ -55,12 +55,12 @@ TAX_COLORS  = {
 
 plt.rcParams.update({
     "font.family":       "Arial",
-    "font.size":         10,
-    "axes.titlesize":    11,
-    "axes.labelsize":    10,
-    "xtick.labelsize":   9,
-    "ytick.labelsize":   9,
-    "legend.fontsize":   9,
+    "font.size":         11,
+    "axes.titlesize":    12,
+    "axes.labelsize":    11,
+    "xtick.labelsize":   10,
+    "ytick.labelsize":   10,
+    "legend.fontsize":   10,
     "axes.linewidth":    0.8,
     "xtick.major.width": 0.8,
     "ytick.major.width": 0.8,
@@ -93,7 +93,7 @@ b2 = ax1.barh(y, unanno, height=bar_h, left=values,
 # percentage labels inside bars
 for i, (v, p) in enumerate(zip(values, pcts)):
     ax1.text(v / 2, i, "%.1f%%" % p,
-             ha="center", va="center", fontsize=9,
+             ha="center", va="center", fontsize=10,
              color="white", fontweight="bold")
 
 ax1.set_yticks(y)
@@ -104,7 +104,7 @@ ax1.set_title("A   Functional annotation coverage", loc="left",
               fontweight="bold", pad=6)
 ax1.axvline(TOTAL, color="#999999", lw=0.7, ls="--", zorder=2)
 ax1.text(TOTAL + 350, -0.65, "n = %s" % f"{TOTAL:,}",
-         fontsize=8, color="#555555", va="bottom")
+         fontsize=9, color="#555555", va="bottom")
 ax1.legend(loc="upper center", bbox_to_anchor=(0.5, -0.18),
            frameon=False, ncol=2, handlelength=1.2, handletextpad=0.5)
 ax1.tick_params(axis="y", length=0)
@@ -127,7 +127,7 @@ wedges, texts = ax2.pie(
 
 # center annotation
 ax2.text(0, 0, f"{TOTAL:,}\nproteins",
-         ha="center", va="center", fontsize=9.5,
+         ha="center", va="center", fontsize=10.5,
          fontweight="bold", color="#333333",
          multialignment="center")
 
