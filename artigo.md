@@ -6,7 +6,7 @@
 
 \*Correspondência: eulalio.santos@ufv.br
 
-> **Nota:** este documento é atualizado incrementalmente à medida que os módulos de análise avançam (ver [Seção 6 — Status das Análises](#6-status-das-análises--próximas-etapas) para o estado atual). Última atualização: 2026-07-25.
+> **Nota:** este documento é atualizado incrementalmente à medida que os módulos de análise avançam (ver [Seção 6 — Status das Análises](#6-status-das-análises--próximas-etapas) para o estado atual). Todos os 13 módulos computacionais planejados estão concluídos; passou por uma auditoria de integridade completa (dados vs. arquivos-fonte, servidor vs. local, revisão de código) em 2026-08-30/31, sem número fabricado encontrado (item 17). Última atualização: 2026-08-31.
 
 ---
 
@@ -40,40 +40,68 @@ Glândulas salivares de *M. spectabilis* foram dissecadas para extração de RNA
 
 ### 2.2 Montagem de novo e avaliação de qualidade
 
-Reads foram processados com FastQC + fastp (Q≥20, comprimento mínimo 50 bp) e montados de novo com Trinity (`--SS_lib_type RF`, `--min_kmer_cov 2`, `--jaccard_clip`). Transcritos redundantes foram agrupados com CD-HIT-EST (identidade 0,95). ORFs foram preditas com TransDecoder (`--single_best_only`). A completude da montagem foi avaliada com BUSCO (linhagem `insecta_odb10`, 1.367 genes ortólogos de cópia única) e estatísticas gerais com TrinityStats.pl/seqkit.
+Reads foram avaliados com **FastQC v0.12.1** e **MultiQC v1.21** (relatório agregado, pré e pós-trimming) e filtrados/aparados com **fastp v0.23.4** (Q≥20, comprimento mínimo 50 bp). A montagem de novo foi feita com **Trinity v2.15.2** (`--SS_lib_type RF`, `--min_kmer_cov 2`, `--min_contig_length 300`, `--jaccard_clip`). Transcritos redundantes foram agrupados com **CD-HIT-EST v4.8.1** (`-c 0.95`, identidade de 95% sobre a sequência mais curta; `-n 8`, `-M 0`). ORFs foram preditas com **TransDecoder v5.7.1** (`TransDecoder.LongOrfs -m 100` seguido de `TransDecoder.Predict --single_best_only`, retendo o melhor ORF por transcrito, mínimo 100 aminoácidos). A completude da montagem foi avaliada com **BUSCO v6.0.0** (linhagem `insecta_odb10`, criada em 2024-01-08, 1.367 genes ortólogos de cópia única, modo `euk_tran`; dependências internas hmmsearch 3.4 e metaeuk 7.bba0d80) e estatísticas gerais com `TrinityStats.pl` (empacotado com o Trinity) e **seqkit v2.13.0**.
 
 ### 2.3 Anotação funcional
 
-Proteínas preditas foram anotadas por: (i) DIAMOND BLASTp contra o NCBI NR (`--evalue 1e-5 --max-target-seqs 1`); (ii) classificação taxonômica dos melhores hits via TaxonKit (lineage completo, não a versão reformatada por ranks, para evitar perda de classificação — ver Seção 5, Problemas Conhecidos); (iii) eggNOG-mapper (GO, KEGG, COG, CAZy); (iv) HMMER/Pfam-A (domínios proteicos). Todas as fontes foram integradas em uma tabela única (`results/annotation_complete.tsv`, `03_annotation/auto_annotate.py`).
+Proteínas preditas foram anotadas por: (i) **DIAMOND v2.1.9** BLASTp contra o NCBI NR (`--evalue 1e-5 --max-target-seqs 1`); (ii) classificação taxonômica dos melhores hits via **TaxonKit v0.15.1** (lineage completo, não a versão reformatada por ranks, para evitar perda de classificação — ver Seção 5, Problemas Conhecidos); (iii) **eggNOG-mapper v2.1.12** (GO, KEGG, COG, CAZy); (iv) **HMMER v3.4** (`hmmscan`) contra o banco **Pfam-A** (domínios proteicos). Todas as fontes foram integradas em uma tabela única (`results/annotation_complete.tsv`, `03_annotation/auto_annotate.py` + `07_fix_annotation_merge.py`).
 
 ### 2.4 Quantificação de expressão
 
-A abundância de transcritos foi quantificada com Salmon (`expression/salmon-quant.sf`, TPM por transcrito), usada como camada de evidência adicional na priorização de candidatos a efetor (Seção 2.6) e na extração de candidatos a endossimbionte (Seção 2.7).
+A abundância de transcritos foi quantificada com **Salmon v1.10.3** (modo de mapeamento seletivo contra o transcriptoma montado, TPM por transcrito; `expression/salmon-quant.sf`), usada como camada de evidência adicional na priorização de candidatos a efetor (Seção 2.6) e na extração de candidatos a endossimbionte (Seção 2.7).
 
 ### 2.5 Predição de secretoma clássico
 
-Proteínas preditas foram submetidas a predição conjunta de peptídeo sinal e segmento transmembrana com **TMbed** (Bernhofer & Rost, 2022), um preditor baseado em embeddings de protein language model (ProtT5), classificando como "secretoma clássico" as proteínas com peptídeo sinal presente E ≤1 segmento transmembrana (`05_secretome/secretome_predict.py`). TMbed substituiu SignalP6/TMHMM, cuja licença acadêmica DTU nunca foi obtida neste ou em outros dois projetos do laboratório (`RLPredictiOme`, `caracterization-trypsin`); TMbed é instalável via `pip`, roda localmente sem necessidade de conta/licença, e não está disponível via bioconda/conda-forge sob nenhum nome de pacote. **Status: concluído.**
+Proteínas preditas foram submetidas a predição conjunta de peptídeo sinal e segmento transmembrana com **TMbed v1.0.2** (Bernhofer & Rost, 2022; torch v2.13.0, transformers v4.57.6), um preditor baseado em embeddings de protein language model (ProtT5), classificando como "secretoma clássico" as proteínas com peptídeo sinal presente E ≤1 segmento transmembrana (`05_secretome/secretome_predict.py`). TMbed substituiu SignalP6/TMHMM, cuja licença acadêmica DTU nunca foi obtida neste ou em outros dois projetos do laboratório (`RLPredictiOme`, `caracterization-trypsin`); TMbed é instalável via `pip`, roda localmente sem necessidade de conta/licença, e não está disponível via bioconda/conda-forge sob nenhum nome de pacote. **Status: concluído.**
 
 ### 2.6 Priorização de candidatos a efetor/toxina salivar
 
-Os candidatos foram filtrados por: (i) status de secretado (Seção 2.5); (ii) presença de termos/domínios funcionais associados a fitotoxicidade em Hemiptera na literatura (proteases tipo veneno, peptídeos salivares secretados, mucinas, lacases, fosfolipases A2/B, domínios EF-hand/Ca-binding, CAZymes GH28/GH5 via dbCAN dedicado); e (iii) nível de expressão (TPM), via `06_effector_prioritization/effector_candidates.py`. O ranking é aditivo (número de termos curados correspondentes, depois TPM), não inferido por ML. **Status: concluído.**
+Os candidatos foram filtrados por: (i) status de secretado (Seção 2.5); (ii) presença de termos/domínios funcionais associados a fitotoxicidade em Hemiptera na literatura (proteases tipo veneno, peptídeos salivares secretados, mucinas, lacases, fosfolipases A2/B, domínios EF-hand/Ca-binding, CAZymes GH28/GH5 via dbCAN dedicado, com correspondência por expressão regular sensível a subfamílias com sufixo, ex. `GH5_12`) e (iii) nível de expressão (TPM), via `06_effector_prioritization/effector_candidates.py`. O ranking é aditivo (número de termos curados correspondentes, depois TPM), não inferido por ML. **Status: concluído.**
 
 ### 2.7 Triagem de endossimbiontes, patógenos e microbioma associado (Camadas 1–3)
 
-A triagem foi conduzida em três camadas progressivas. **Camada 1** — reaproveitamento das classificações taxonômicas DIAMOND/lineage já geradas na anotação funcional (`07_metagenomic_screen/01_taxonomic_summary.py`), extraindo proteínas com hit em *Sulcia*/*Zinderia*/*Sodalis*-like e sinalizando separadamente hits de baixa prioridade (*Xylella*, fitoplasma). **Camada 2** — confirmação independente via classificação estrutural (baseada em conteúdo gênico, não em similaridade de sequência a um banco de referência — portanto não circular em relação à Camada 1) dos contigs montados com Whokaryote+Tiara (Pronk & Medema, 2022; Karlicki et al., 2022), cruzada com a Camada 1 via `07_metagenomic_screen/04_cross_validate_endosymbionts.py`.
+A triagem foi conduzida em três camadas progressivas. **Camada 1** — reaproveitamento das classificações taxonômicas DIAMOND/lineage já geradas na anotação funcional (`07_metagenomic_screen/01_taxonomic_summary.py`), extraindo proteínas com hit em *Sulcia*/*Zinderia*/*Sodalis*-like e sinalizando separadamente hits de baixa prioridade (*Xylella*, fitoplasma). **Camada 2** — confirmação independente via classificação estrutural (baseada em conteúdo gênico, não em similaridade de sequência a um banco de referência — portanto não circular em relação à Camada 1) dos contigs montados com **Whokaryote v1.1.2** + **Tiara v1.0.3** (Pronk & Medema, 2022; Karlicki et al., 2022), cruzada com a Camada 1 via `07_metagenomic_screen/04_cross_validate_endosymbionts.py`.
 
 **Camada 3** — motivada pela pergunta biológica direta "algum patógeno (vírus, fungo ou bactéria) causa ou co-causa o amarelão?", usando desta vez o FASTQ bruto (`gland-saliv_{1,2}.fq.gz`, 86.697.028 pares de reads) diretamente, disponível no diretório de dados brutos do servidor (`/home/eulalio/Gland-saliv-cigarrinha`) e não apenas os contigs/proteínas já montados:
 
 - **Censo completo do microbioma bacteriano e fúngico**: todos os 540 hits com melhor correspondência em Bacteria e todos os 256 hits em Fungi (coluna `source_organism` de `results/annotation_complete.tsv`) foram agrupados por gênero/espécie — não apenas os candidatos já pré-selecionados em sessões anteriores — para obter um retrato completo do que está presente, não só dos candidatos já suspeitos.
-- **Descoberta viral dirigida por domínio RdRp**: 31 famílias HMM de RNA-polimerase dependente de RNA (RdRp) foram extraídas do banco Pfam-A já instalado localmente (`hmmfetch`) e usadas para escanear as 12.445 proteínas TransDecoder (`hmmscan`), complementado por `diamond blastx` dos contigs montados contra o banco viral RefSeq da NCBI (722.107 proteínas). Os 30 hits virais já existentes na anotação DIAMOND/NR original (Seção 3.3, tabela) foram reclassificados por família taxonômica real (consulta à taxonomia NCBI) para distinguir vírus genuínos de elementos genômicos do tipo retrotransposon (Metaviridae, Polintoviridae) erroneamente rotulados como "vírus" pela nomenclatura do banco de referência.
-- **Confirmação/refutação direcionada de Xylella/fitoplasma por mapeamento genoma-inteiro**: os reads brutos foram mapeados (bowtie2) contra os genomas de referência completos de *Xylella fastidiosa* subsp. *multiplex* (GCF_042238405.1) e do fitoplasma Aster Yellows (NC_007716.1 + 4 plasmídeos), com cálculo de amplitude (*breadth*) e profundidade de cobertura genoma-inteira e localização das posições cobertas via anotação GFF3 real — um critério de confirmação muito mais rigoroso que a identidade de um único hit de proteína.
+- **Descoberta viral dirigida por domínio RdRp**: 31 famílias HMM de RNA-polimerase dependente de RNA (RdRp) foram extraídas do banco Pfam-A já instalado localmente (`hmmfetch`, HMMER v3.4) e usadas para escanear as 12.445 proteínas TransDecoder (`hmmscan`), complementado por **DIAMOND v2.1.9** `blastx` dos contigs montados contra o banco viral RefSeq da NCBI (722.107 proteínas). Os 30 hits virais já existentes na anotação DIAMOND/NR original (Seção 3.3, tabela) foram reclassificados por família taxonômica real (consulta à taxonomia NCBI) para distinguir vírus genuínos de elementos genômicos do tipo retrotransposon (Metaviridae, Polintoviridae) erroneamente rotulados como "vírus" pela nomenclatura do banco de referência.
+- **Confirmação/refutação direcionada de Xylella/fitoplasma por mapeamento genoma-inteiro**: os reads brutos (86.697.028 pares) foram mapeados com **Bowtie2 v2.5.5** contra os genomas de referência completos de *Xylella fastidiosa* subsp. *multiplex* (GCF_042238405.1) e do fitoplasma Aster Yellows (NC_007716.1 + 4 plasmídeos), com cálculo de amplitude (*breadth*) e profundidade de cobertura genoma-inteira e localização das posições cobertas via anotação GFF3 real — um critério de confirmação muito mais rigoroso que a identidade de um único hit de proteína.
 - **Busca por genes de toxina/virulência microbiana**: varredura por palavra-chave (toxina, hemolisina, RTX, fosfolipase, fator de virulência, etc.) nas colunas `diamond_title`, `eggnog_desc` e `pfam_domains` de todos os hits de Bacteria e Fungi, independente do organismo de origem — abordagem complementar à busca organismo-primeiro das Camadas 1–2.
 
 Bancos de dados baixados para esta camada (viral RefSeq NCBI, genomas de referência Xylella/fitoplasma) foram usados e removidos do servidor após a análise, mantendo apenas as tabelas de resultado. **Status: concluído** (as três camadas).
 
+Como validação adicional do candidato a endossimbionte *Sulcia* (Camada 1), o gene GroEL foi alinhado contra sequências de referência de *Candidatus* Karelsulcia muelleri e um outgroup de Bacteroidetes de vida livre (*Sodalis glossinidius*, *Bacteroides* sp.), e submetido a inferência filogenética de máxima verossimilhança com **IQ-TREE v3.1.1** (ModelFinder para seleção automática de modelo + bootstrap ultrarrápido, 1000 réplicas; Hoang et al., 2018), via `08_metagenomic_deep/`.
+
 ### 2.8 Anotação CAZy dedicada
 
-A anotação CAZy do eggNOG-mapper (Seção 2.3) cobre apenas 1,4% das proteínas e não identificou nenhum hit às famílias GH28/GH5 — resultado de baixa sensibilidade conhecida, não necessariamente ausência real dessas atividades. Uma anotação dbCAN dedicada foi executada com `run_dbcan` (DIAMOND + dbCAN-HMM + dbCAN-sub contra o banco de dados dbCAN real; Zheng et al., 2023), via `03_annotation/08_cazy_annotation.sh` + `09_merge_cazy.py`. **Status: concluído.**
+A anotação CAZy do eggNOG-mapper (Seção 2.3) cobre apenas 1,4% das proteínas e não identificou nenhum hit às famílias GH28/GH5 — resultado de baixa sensibilidade conhecida, não necessariamente ausência real dessas atividades. Uma anotação dbCAN dedicada foi executada com **`run_dbcan` v5.2.9** (DIAMOND v2.2.4 + dbCAN-HMM/pyhmmer v0.12.1 + dbCAN-sub contra o banco de dados dbCAN real; Zheng et al., 2023), via `03_annotation/08_cazy_annotation.sh` + `09_merge_cazy.py`. **Status: concluído.**
+
+### 2.9 Ferramentas, versões e ambientes
+
+Tabela consolidada de todo o software usado neste trabalho, com a versão efetivamente instalada e executada (verificada por `conda list` no ambiente correspondente ou pelo cabeçalho do arquivo de saída da própria ferramenta — ver auditoria de integridade, Seção 6, item 17). Definições completas dos ambientes conda em `environment/*.yml`.
+
+| Ferramenta | Versão | Etapa | Referência |
+|---|---|---|---|
+| FastQC | 0.12.1 | QC de reads (bruto/pós-trim) | Andrews, 2010 |
+| fastp | 0.23.4 | Trimming de adaptador/qualidade | Chen et al., 2018 |
+| MultiQC | 1.21 | Agregação de relatórios QC | Ewels et al., 2016 |
+| Trinity | 2.15.2 | Montagem de novo | Grabherr et al., 2011; Haas et al., 2013 |
+| CD-HIT-EST | 4.8.1 | Remoção de redundância (95% identidade) | Fu et al., 2012 |
+| TransDecoder | 5.7.1 | Predição de ORF/proteína | Haas et al., 2013 |
+| seqkit | 2.13.0 | Estatísticas de sequência | Shen et al., 2016 |
+| BUSCO | 6.0.0 (`insecta_odb10`) | Completude da montagem | Manni et al., 2021 |
+| DIAMOND | 2.1.9 (anotação/viral) / 2.2.4 (dbCAN) | BLASTp/BLASTx | Buchfink et al., 2021 |
+| TaxonKit | 0.15.1 | Classificação taxonômica | Shen & Ren, 2021 |
+| eggNOG-mapper | 2.1.12 | Anotação GO/KEGG/COG/CAZy | Cantalapiedra et al., 2021 |
+| HMMER | 3.4 | Domínios Pfam, `hmmscan` RdRp | Eddy, 2011 |
+| Salmon | 1.10.3 | Quantificação de expressão (TPM) | Patro et al., 2017 |
+| TMbed | 1.0.2 | Predição de secretoma clássico | Bernhofer & Rost, 2022 |
+| run_dbcan (dbCAN3) | 5.2.9 | Anotação CAZy dedicada | Zheng et al., 2023 |
+| Whokaryote | 1.1.2 | Classificação estrutural euc./proc. | Pronk & Medema, 2022 |
+| Tiara | 1.0.3 | Classificação estrutural euc./proc. | Karlicki et al., 2022 |
+| Bowtie2 | 2.5.5 | Mapeamento genoma-inteiro (Xylella/fitoplasma) | Langmead & Salzberg, 2012 |
+| IQ-TREE | 3.1.1 | Filogenia de máxima verossimilhança (GroEL) | Wong et al., 2025 |
 
 ---
 
@@ -240,10 +268,13 @@ Tabela viva, atualizada a cada módulo concluído:
 | 15. Confirmação direcionada Xylella/fitoplasma (PCR) | ✅ Substituído | 2026-07-25 | Mapeamento genoma-inteiro (item 11) cumpriu o mesmo papel sem necessidade de bancada, com resultado negativo |
 | 16. Validação experimental dos 35 candidatos a efetor (proteômica/RNAi/ensaio de fitotoxicidade) | 💡 Sugerido, próxima etapa natural | — | Decisão do grupo/laboratório; comparar com Monteiro (2019)/Rinaldi (2021, 2026); reforçado como hipótese mais provável por eliminação (Seção 4) |
 | 17. Auditoria de integridade completa (veracidade numérica vs dados brutos, checksum servidor↔local, revisão de bugs) | ✅ Concluído | 2026-08-30 | Nenhum número fabricado; corrigido bug de contagem GH28/GH5 (16→15, substring "GH5" capturava GH56) e bug de merge que deixava 574 valores não-limpos em `cazy` (`03_annotation/09_merge_cazy.py`) |
+| 18. Revisão de código dedicada linha-a-linha (finalização da auditoria do item 17) | ✅ Concluído | 2026-08-31 | Confirma que a correção histórica do bug de merge eggNOG se sustenta; achado 1 bug latente de baixa severidade em `06_effector_prioritization/effector_candidates.py` (regex GH28/GH5 não casava subfamílias com sufixo, ex. `GH5_12`) — corrigido, zero impacto nos 35 candidatos publicados (checksum idêntico após reexecução) |
 
 ---
 
 ## Referências
+
+Andrews, S. (2010). FastQC: a quality control tool for high throughput sequence data. Babraham Bioinformatics, Babraham Institute, Cambridge, UK. https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
 
 Backus, E.A., Serrano, M.S., Ranger, C.M. (2005). Mechanisms of hopperburn: an overview of insect taxonomy, behavior, and physiology. *Annual Review of Entomology*, 50, 125–151. https://doi.org/10.1146/annurev.ento.49.061802.123310
 
@@ -257,19 +288,33 @@ Buchfink, B., Xie, C., Huson, D.H. (2021). Sensitive protein alignments at tree-
 
 Cantalapiedra, C.P. et al. (2021). eggNOG-mapper v2: functional annotation, orthology assignments, and domain prediction at the metagenomic scale. *Molecular Biology and Evolution*, 38(12), 5825–5829. https://doi.org/10.1093/molbev/msab293
 
+Chen, S., Zhou, Y., Chen, Y., Gu, J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. *Bioinformatics*, 34(17), i884–i890. https://doi.org/10.1093/bioinformatics/bty560
+
 Cornara, D. et al. (2017). Spittlebugs as vectors of *Xylella fastidiosa* in olive orchards in Italy. *Journal of Pest Science*, 90, 521–530. https://doi.org/10.1007/s10340-016-0793-0
 
 Cornara, D. et al. (2018). EPG combined with micro-CT and video recording reveals new insights on the feeding behavior of *Philaenus spumarius*. *Journal of Pest Science*, 91, 941–951.
 
+Eddy, S.R. (2011). Accelerated profile HMM searches. *PLOS Computational Biology*, 7(10), e1002195. https://doi.org/10.1371/journal.pcbi.1002195
+
+Ewels, P., Magnusson, M., Lundin, S., Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. *Bioinformatics*, 32(19), 3047–3048. https://doi.org/10.1093/bioinformatics/btw354
+
 Foieri, F., Decker-Franco, C., Marino de Remes Lenicov, A.M., Arneodo, J.D. (2022). First identification of bacterial endosymbionts in three South-American spittlebug pests: *Notozulia entreriana*, *Deois mourei* and *Deois knoblauchii*. *Bulletin of Insectology*.
+
+Fu, L., Niu, B., Zhu, Z., Wu, S., Li, W. (2012). CD-HIT: accelerated for clustering the next-generation sequencing data. *Bioinformatics*, 28(23), 3150–3152. https://doi.org/10.1093/bioinformatics/bts565
 
 Grabherr, M.G. et al. (2011). Full-length transcriptome assembly from RNA-Seq data without a reference genome. *Nature Biotechnology*, 29(7), 644–652. https://doi.org/10.1038/nbt.1883
 
+Haas, B.J. et al. (2013). De novo transcript sequence reconstruction from RNA-seq using the Trinity platform for reference generation and analysis. *Nature Protocols*, 8(8), 1494–1512. https://doi.org/10.1038/nprot.2013.084
+
 Hernandez, C.A. et al. (2022). Spittlebugs (Hemiptera: Cercopidae): integrated pest management on gramineous crops in the Neotropical ecozone. *Frontiers in Sustainable Food Systems*, 6, 891417. https://doi.org/10.3389/fsufs.2022.891417
+
+Hoang, D.T., Chernomor, O., von Haeseler, A., Minh, B.Q., Vinh, L.S. (2018). UFBoot2: improving the ultrafast bootstrap approximation. *Molecular Biology and Evolution*, 35(2), 518–522. https://doi.org/10.1093/molbev/msx281
 
 Karlicki, M., Antonowicz, S., Karnkowska, A. (2022). Tiara: deep learning-based classification system for eukaryotic sequences. *Bioinformatics*, 38(2), 344–350. https://doi.org/10.1093/bioinformatics/btab672
 
 Koga, R., Moran, N.A. (2014). Swapping symbionts in spittlebugs: evolutionary replacement of a reduced genome symbiont. *The ISME Journal*, 8, 1237–1249. https://doi.org/10.1038/ismej.2013.235
+
+Langmead, B., Salzberg, S.L. (2012). Fast gapped-read alignment with Bowtie 2. *Nature Methods*, 9(4), 357–359. https://doi.org/10.1038/nmeth.1923
 
 Manni, M. et al. (2021). BUSCO update: novel and streamlined workflows along with broader and deeper phylogenetic coverage for scoring of eukaryotic, prokaryotic, and viral genomes. *Molecular Biology and Evolution*, 38(10), 4647–4654. https://doi.org/10.1093/molbev/msab199
 
@@ -279,11 +324,17 @@ Mistry, J. et al. (2021). Pfam: the protein families database in 2021. *Nucleic 
 
 Monteiro, L.P. (2019). Caracterização molecular da interação das cigarrinhas-das-pastagens (*Mahanarva spectabilis*) com diferentes forrageiras. Dissertação de Mestrado, Universidade Federal de Viçosa.
 
+Patro, R., Duggal, G., Love, M.I., Irizarry, R.A., Kingsford, C. (2017). Salmon provides fast and bias-aware quantification of transcript expression. *Nature Methods*, 14(4), 417–419. https://doi.org/10.1038/nmeth.4197
+
 Rinaldi, A.J. (2021). Análise de componentes moleculares da espuma e da toxina presente na glândula salivar de cigarrinha das pastagens. Dissertação de Mestrado, Universidade Federal de Viçosa.
 
 Pronk, L.J.U., Medema, M.H. (2022). Whokaryote: distinguishing eukaryotic and prokaryotic contigs in metagenomes based on gene structure. *Microbial Genomics*, 8(5), 000823. https://doi.org/10.1099/mgen.0.000823
 
 Rinaldi, A.J. et al. (2026). Molecular and structural characterization of foam proteins from *Mahanarva spectabilis* (Distant, 1909) (Hemiptera: Cercopidae) nymphs reveals adaptive features and potential targets for pest control. *Archives of Insect Biochemistry and Physiology*.
+
+Shen, W., Le, S., Li, Y., Hu, F. (2016). SeqKit: a cross-platform and ultrafast toolkit for FASTA/Q file manipulation. *PLOS ONE*, 11(10), e0163962. https://doi.org/10.1371/journal.pone.0163962
+
+Shen, W., Ren, H. (2021). TaxonKit: a practical and efficient NCBI taxonomy toolkit. *Journal of Genetics and Genomics*, 48(9), 844–850. https://doi.org/10.1016/j.jgg.2021.03.006
 
 Shi, M. et al. (2016). Redefining the invertebrate RNA virosphere. *Nature*, 540, 539–543. https://doi.org/10.1038/nature20167
 
@@ -292,5 +343,7 @@ Sotelo, G., Cardona, C. (2001). [Sintomatologia e biologia de cigarrinhas-das-pa
 Thompson, V., González, R. (2005). [Danos de cigarrinhas em gramíneas forrageiras]. Apud Hernandez et al. (2022).
 
 Valério, J.R. et al. (2001). [Caracterização de sintomas de dano de cigarrinhas-das-pastagens]. Apud Hernandez et al. (2022).
+
+Wong, T.K.F., Ly-Trong, N., Ren, H., Banos, H., Roger, A.J., Susko, E., Bielow, C., De Maio, N., Goldman, N., Hahn, M.W., Huttley, G., Lanfear, R., Minh, B.Q. (2025). IQ-TREE 3: phylogenomic inference software using complex evolutionary models. *bioRxiv*. https://doi.org/10.1101/2025.01.15.633177
 
 Zheng, J., Ge, Q., Yan, Y., Zhang, X., Huang, L., Yin, Y. (2023). dbCAN3: automated carbohydrate-active enzyme and substrate annotation. *Nucleic Acids Research*, 51(W1), W115–W121. https://doi.org/10.1093/nar/gkad328

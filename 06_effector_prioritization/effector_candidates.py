@@ -54,7 +54,7 @@ CURATED_TERMS = {
     "mucin":               re.compile(r"mucin", re.I),
     "phospholipase":       re.compile(r"phospholipase\s*[AB]2?", re.I),
     "ef_hand_ca_binding":  re.compile(r"EF.?hand|calcium.binding|Ca2\+.binding", re.I),
-    "gh28_gh5_cazy":       re.compile(r"\bGH28\b|\bGH5\b|cellulase|pectinase", re.I),
+    "gh28_gh5_cazy":       re.compile(r"\bGH28(?:_\d+)?\b|\bGH5(?:_\d+)?\b|cellulase|pectinase", re.I),
 }
 
 TEXT_FIELDS = [
