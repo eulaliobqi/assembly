@@ -2,6 +2,10 @@
 # .gitignore for Mahanarva spectabilis Salivary Gland Transcriptome Project
 # =============================================================================
 
+# Microsoft Office lock/temp files (created while a .docx is open)
+~$*.docx
+~$*.doc
+
 # =============================================================================
 # LARGE DATABASE FILES
 # These files are too large for version control (tens to hundreds of GB).
