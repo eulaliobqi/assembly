@@ -15,6 +15,8 @@ The salivary gland was selected as the focal tissue because spittlebug saliva pl
 
 RNA-seq reads were assembled using Trinity, annotated against multiple databases (NCBI NR, eggNOG, Pfam), and subjected to Gene Ontology (GO) and KEGG pathway enrichment analyses. All scripts are parameterized and commented for reproducibility.
 
+**This README is a repository/reproducibility guide.** For the full manuscript-style writeup -- complete Methods with exact tool versions and parameters, Results with every figure and table, Discussion, Limitations, and a live per-module status table -- see [`artigo.md`](artigo.md) / `artigo.docx`.
+
 ---
 
 ## Biological Motivation / Motivacao Biologica
@@ -36,6 +38,12 @@ Note: this tree reflects the actual repository contents, which diverged from the
 trinity_maharnava/
 |
 |-- README.md                        # This file
+|-- artigo.md / artigo.docx          # Full manuscript-style writeup (methods incl. exact tool
+|                                     # versions/parameters, results, figures, discussion,
+|                                     # limitations, live analysis-status table) -- the primary,
+|                                     # actively-maintained document; this README is a repo guide
+|-- roteiro-apresentacao-minicurso.md/.docx  # Teaching walkthrough (assembly QC + annotation)
+|-- scripts.md                       # Generic/commented reference version of the whole pipeline
 |-- .gitignore                       # Files excluded from version control
 |
 |-- data/
@@ -49,21 +57,30 @@ trinity_maharnava/
 |-- 03_annotation/
 |   |-- auto_annotate.py             # DIAMOND NR + TaxonKit + eggNOG-mapper + HMMER/Pfam (single consolidated script)
 |   |-- 07_fix_annotation_merge.py   # Standalone fix for the eggNOG/taxonomy merge bug (see Known Issues)
+|   |-- 08_cazy_annotation.sh        # Dedicated dbCAN3 (run_dbcan) CAZyme annotation
+|   |-- 09_merge_cazy.py             # Merges dbCAN calls into annotation_complete.tsv (cazy column)
 |   `-- databases_setup.md           # Guide to download and build databases
 |
 |-- 04_functional_analysis/
-|   |-- go_kegg_analysis.py          # GO term frequency + KEGG pathway mapping
-|   `-- plot_annotation.py           # Publication-quality annotation summary figure
+|   |-- go_kegg_analysis.py          # GO term frequency + KEGG pathway mapping + figures (uses cache/ for OBO/KEGG API results)
+|   |-- plot_annotation.py           # Publication-quality annotation summary figure
+|   `-- plot_assembly_qc.py          # Assembly QC + ORF-type summary figure
 |
 |-- 05_secretome/
-|   `-- secretome_predict.py         # SignalP6+TMHMM classical secretome prediction (9 phases)
+|   `-- secretome_predict.py         # TMbed classical secretome prediction (replaces SignalP6/TMHMM, see Known Issues)
 |
-|-- 06_effector_prioritization/      # Candidate salivary effectors/toxins (planned, see Biological Motivation)
+|-- 06_effector_prioritization/
+|   |-- effector_candidates.py       # Secretome x curated toxin/effector terms x TPM ranking
+|   `-- plot_effectors.py            # Effector candidates dot-plot figure
 |
 |-- 07_metagenomic_screen/
-|   |-- 01_taxonomic_summary.py      # Taxonomic distribution + Sulcia/Zinderia/Sodalis-like candidate extraction
-|   |-- 04_cross_validate_endosymbionts.py  # Layer 2: Whokaryote+Tiara structural cross-validation
-|   `-- results/                     # Camada 3 (2026-07-25): see below -- executed via direct commands
+|   |-- 01_taxonomic_summary.py      # Taxonomic distribution + Sulcia/Zinderia/Sodalis-like candidate extraction (Camada 1)
+|   |-- 04_cross_validate_endosymbionts.py  # Camada 2: Whokaryote+Tiara structural cross-validation
+|   |-- 09_plot_blobtools_gc_tpm.py  # Camada 3: GC%xTPM blob plot + Mann-Whitney test
+|   |-- 10_plot_microbiome_census.py # Camada 3: full Bacteria+Fungi genus census figure
+|   |-- 11_plot_pathogen_screening.py # Camada 3: viral reclassification + Xylella/phytoplasma coverage figure
+|   `-- results/                     # Camada 3 (2026-07-25): see Known Issues -- underlying
+|       |                            # mapping/hmmscan/keyword-search commands not yet scripted
 |       |-- viral_discovery/         # RdRp HMM subset (31 Pfam families) + DIAMOND vs viral RefSeq
 |       |-- pathogen_confirmation/   # Xylella/phytoplasma genome-wide read mapping (REFUTED)
 |       |-- fungal_breakdown/        # Full 256-hit Fungi genus census
@@ -72,13 +89,18 @@ trinity_maharnava/
 |       `-- completeness_checklist/  # Informal Sulcia gene-content checklist (NOT a CheckM2 equivalent)
 |
 |-- 08_metagenomic_deep/
+|   |-- 02_plot_groel_phylogeny.py   # GroEL ML tree figure (IQ-TREE output)
 |   `-- results/phylogenetics/       # GroEL ML tree (Sulcia refs + Sodalis/Bacteroidetes outgroup) -- INCONCLUSIVE (bootstrap 49-72%, below 95% criterion)
 |
 |-- results/
-|   |-- annotation_complete.tsv      # Final merged annotation table (24 columns incl. cazy)
+|   |-- annotation_complete.tsv      # Final merged annotation table (incl. dbCAN-derived cazy column)
 |   |-- annotation_report.txt        # Summary statistics of annotation
 |   |-- taxon_lineage.tsv            # taxid -> full/reformatted NCBI lineage lookup (not versioned, see .gitignore)
+|   |-- cazy/overview.tsv            # Dedicated dbCAN3 CAZyme calls (DIAMOND + dbCAN-HMM + dbCAN-sub)
+|   |-- secretome/                   # TMbed classical secretome (secretome_classical.tsv, secretome_report.txt)
+|   |-- effector_candidates/         # effector_candidates_ranked.tsv + report
 |   |-- endosymbiont_candidates/     # Sulcia/Sodalis-like hits + Xylella/phytoplasma leads (now refuted, see 07_metagenomic_screen/results/pathogen_confirmation/)
+|   |-- whokaryote/                  # Camada 2 per-contig eukaryote/prokaryote calls
 |   |-- go/                          # go_top20_{BP,CC,MF}.csv
 |   `-- kegg/                        # kegg_pathways.csv
 |
@@ -87,13 +109,22 @@ trinity_maharnava/
 |   `-- expressed_transcripts.txt
 |
 |-- environment/
-|   |-- env_annotation.yml           # diamond/taxonkit/eggnog-mapper/hmmer, python=3.11
-|   `-- env_secretome.yml            # signalp6/tmhmm, python=3.11 (isolated from env_annotation)
+|   |-- env_annotation.yml           # diamond/taxonkit/eggnog-mapper/hmmer, python=3.11 (env name: auto_annotate)
+|   |-- env_secretome.yml            # TMbed (torch/transformers<5), python=3.11 -- isolated, see Known Issues
+|   |-- env_cazy.yml                 # dbcan (run_dbcan / dbCAN3)
+|   `-- env_metagenome.yml           # whokaryote + tiara -- isolated (old numpy/sklearn/Python 3.8 stack)
 |
-`-- figures/
-    |-- annotation_summary.{png,tiff}
-    |-- go_distribution.{png,tiff}
-    `-- kegg_pathways_{bar,bubble}.{png,tiff}
+`-- figures/                         # All PNG (300 dpi, publication-ready) + TIFF (archival, gitignored)
+    |-- assembly_qc_summary.png
+    |-- annotation_summary.png
+    |-- go_distribution.png
+    |-- kegg_pathways_{bar,bubble}.png
+    |-- secretome_summary.png
+    |-- effector_candidates.png
+    |-- microbiome_census.png
+    |-- pathogen_screening.png
+    |-- blobplot_gc_tpm.png
+    `-- groel_phylogeny.png
 ```
 
 ---
@@ -228,48 +259,40 @@ Step 10: Pathogen Screening / Full Microbiome Census (Camada 3, done 2026-07-25)
 
 ## Dependencies and Environments / Dependencias e Ambientes
 
-Two separate conda environments are used to avoid dependency conflicts.
+Five separate conda environments are used to avoid dependency conflicts. **Exact versions below are the ones actually run to produce every result in this repo and in `artigo.md`** (verified via `conda list` on the analysis server, not just pinned as minimums -- see the integrity audit in Known Issues), not aspirational minimums.
 
 ### Environment 1: `assembly`
 
-Used for steps 1-3 (QC, assembly, evaluation).
+Used for steps 1-3 (QC, assembly, evaluation) plus Salmon quantification and the Camada 3 Bowtie2 mapping.
 
 ```bash
 conda create -n assembly -c bioconda -c conda-forge \
-    fastqc multiqc fastp trinity cd-hit transdecoder \
-    seqkit busco
+    fastqc=0.12.1 multiqc=1.21 fastp=0.23.4 trinity=2.15.2 \
+    cd-hit=4.8.1 seqkit=2.13.0 bowtie2=2.5.5 salmon=1.10.3
 conda activate assembly
 ```
 
-Key tool versions tested:
-- Trinity >= 2.15.1
-- fastp >= 0.23.4
-- BUSCO >= 5.7.0
-- CD-HIT >= 4.8.1
-- TransDecoder >= 5.7.0
-- seqkit >= 2.8.0
-
-### Environment 2: `annotation`
-
-Used for steps 4-6 (annotation and functional analysis).
+TransDecoder and BUSCO are kept in their own environments on the analysis server (`orf_prediction`: TransDecoder 5.7.1; `busco`: BUSCO 6.0.0) to avoid dependency conflicts with Trinity's own bundled toolchain -- create separately if reproducing exactly:
 
 ```bash
-conda create -n annotation -c bioconda -c conda-forge \
-    diamond hmmer eggnog-mapper taxonkit \
-    python=3.10 pandas matplotlib seaborn biopython requests
-conda activate annotation
+conda create -n orf_prediction -c bioconda -c conda-forge transdecoder=5.7.1
+conda create -n busco -c bioconda -c conda-forge busco=6.0.0
 ```
 
-Key tool versions tested:
-- DIAMOND >= 2.1.9
-- HMMER >= 3.4
-- eggNOG-mapper >= 2.1.12
-- taxonkit >= 0.17.0
-- Python >= 3.10
+### Environment 2: `auto_annotate` (see `environment/env_annotation.yml`)
+
+Used for step 4 (functional annotation, `03_annotation/auto_annotate.py`) and the Camada 3 RdRp/viral DIAMOND+HMMER steps.
+
+```bash
+conda env create -f environment/env_annotation.yml
+conda activate auto_annotate
+```
+
+Exact versions: DIAMOND 2.1.9, HMMER 3.4, eggNOG-mapper 2.1.12, TaxonKit 0.15.1, Python 3.11. (dbCAN's own DIAMOND, in the `cazy` environment below, is a newer 2.2.4 -- kept separate deliberately, not a version drift bug.)
 
 ### Environment 3: `secretome` (see `environment/env_secretome.yml`)
 
-Used for step 7 (classical secretome prediction, TMbed). Kept isolated from `annotation` because it pins its own PyTorch/transformers stack.
+Used for step 7 (classical secretome prediction, TMbed 1.0.2). Kept isolated from `auto_annotate` because it pins its own PyTorch/transformers stack (exact versions run: torch 2.13.0, transformers 4.57.6).
 
 ```bash
 conda env create -f environment/env_secretome.yml
@@ -280,7 +303,7 @@ conda activate secretome
 
 ### Environment 4: `cazy` (see `environment/env_cazy.yml`)
 
-Used for step 8b (dedicated dbCAN CAZyme annotation, `dbcan` bioconda package / `run_dbcan` CLI).
+Used for step 8b (dedicated dbCAN3 CAZyme annotation). Exact versions run: `run_dbcan` 5.2.9, DIAMOND 2.2.4 (bundled dependency, distinct from the 2.1.9 in `auto_annotate`), pyhmmer 0.12.1.
 
 ```bash
 conda env create -f environment/env_cazy.yml
@@ -290,72 +313,107 @@ run_dbcan database --no-cgc --db_dir /path/to/dbcan_db   # one-time, ~7.7 GB
 
 ### Environment 5: `metagenome` (see `environment/env_metagenome.yml`)
 
-Used for step 9 Layer 2 (Whokaryote+Tiara). Kept isolated because `whokaryote` pins an old numpy/scikit-learn/Python 3.8 stack.
+Used for step 9 Layer 2 (Whokaryote+Tiara). Kept isolated because `whokaryote` pins an old numpy/scikit-learn/Python 3.8 stack. Exact versions run: Whokaryote 1.1.2, Tiara 1.0.3.
 
 ```bash
 conda env create -f environment/env_metagenome.yml
 conda activate metagenome
 ```
 
+### Environment 6: `phylo` (GroEL phylogeny, `08_metagenomic_deep/`)
+
+Not shipped as a repo `environment/*.yml` (single-tool, ad hoc analysis) -- IQ-TREE 3.1.1 was the exact version run (ModelFinder + 1000-replicate ultrafast bootstrap).
+
+```bash
+conda create -n phylo -c bioconda -c conda-forge iqtree=3.1.1
+```
+
 ---
 
 ## Usage / Como Usar
 
-All scripts should be run from the repository root directory. Adjust path variables at the top of each script before execution.
+All scripts should be run from the repository root directory unless noted. Adjust path variables at the top of each script before execution. This mirrors the actual scripts committed to the repo -- for a generic, teaching-oriented walkthrough of the underlying commands, see `scripts.md`; for full parameters/versions/rationale, see `artigo.md` Section 2.
 
-### Step 1: Quality Control and Trimming
+### Steps 1-3: QC, Assembly, Evaluation
 
 ```bash
 conda activate assembly
 bash 01_quality_assembly/01_qc_trimming.sh
-```
-
-### Step 2: Trinity Assembly
-
-```bash
-conda activate assembly
-bash 01_quality_assembly/02_trinity_assembly.sh
-```
-
-### Step 3: Assembly Evaluation
-
-```bash
-conda activate assembly
-bash 02_assembly_evaluation/03_stats_busco.sh
+bash 01_quality_assembly/02_trinity_assembly.sh   # Trinity -> CD-HIT-EST -> TransDecoder
+bash 02_assembly_evaluation/03_stats_busco.sh     # TrinityStats.pl + seqkit + BUSCO
 ```
 
 ### Step 4: Database Setup (one-time)
 
-Follow the instructions in `03_annotation/databases_setup.md` to download and build all required databases before running annotation steps.
+Follow `03_annotation/databases_setup.md` to download and build the NCBI NR DIAMOND database, eggNOG-mapper databases, and Pfam-A before running annotation.
 
-### Step 4b: DIAMOND NR Annotation
+### Step 4b: Functional Annotation (DIAMOND + TaxonKit + eggNOG-mapper + Pfam)
 
 ```bash
-conda activate annotation
-bash 03_annotation/04_diamond_nr.sh
+conda activate auto_annotate
+python 03_annotation/auto_annotate.py --input data/gland-saliv-cigarr.fa
+# Resume after interruption: add --resume
+# Run a single phase only: add --phase <phase_name>
+
+# If reproducing from an older/out-of-sync run (see Known Issues, merge bug):
+python 03_annotation/07_fix_annotation_merge.py
 ```
 
-### Step 4c: eggNOG and Pfam Annotation
+### Step 4c: GO/KEGG Analysis + Figures
 
 ```bash
-conda activate annotation
-bash 03_annotation/05_eggnog_pfam.sh
+conda activate auto_annotate   # needs pandas, matplotlib, requests
+cd 04_functional_analysis
+python go_kegg_analysis.py --emapper ../results/emapper.emapper.annotations
+python plot_annotation.py
+python plot_assembly_qc.py
 ```
 
-### Step 5: Merge Annotations
+### Step 5: Classical Secretome Prediction (TMbed)
 
 ```bash
-conda activate annotation
-python 03_annotation/06_merge_annotations.py
+conda activate secretome
+python 05_secretome/secretome_predict.py
+# Resume if TMbed already ran: --resume
 ```
 
-### Step 6: GO and KEGG Analysis + Figures
+### Step 6: Dedicated dbCAN3 CAZyme Annotation
 
 ```bash
-conda activate annotation
-python 04_functional_analysis/07_go_analysis.py
-python 04_functional_analysis/08_kegg_analysis.py
-python 04_functional_analysis/09_figures.py
+conda activate cazy
+bash 03_annotation/08_cazy_annotation.sh /path/to/dbcan_db_dir
+python 03_annotation/09_merge_cazy.py    # merges dbCAN calls into annotation_complete.tsv
+```
+
+### Step 7: Endosymbiont Screening (Camadas 1-2)
+
+```bash
+conda activate auto_annotate
+python 07_metagenomic_screen/01_taxonomic_summary.py           # Camada 1: DIAMOND/lineage extraction
+
+conda activate metagenome
+# Run Whokaryote + Tiara on the assembled contigs first (see tool docs), then:
+python 07_metagenomic_screen/04_cross_validate_endosymbionts.py   # Camada 2: structural cross-validation
+```
+
+### Step 8: Candidate Effector/Toxin Prioritization
+
+```bash
+conda activate auto_annotate   # needs pandas
+python 06_effector_prioritization/effector_candidates.py
+python 06_effector_prioritization/plot_effectors.py
+```
+
+### Camada 3: Pathogen Screening / Full Microbiome Census / GroEL Phylogeny
+
+The mapping, `hmmscan`/`blastx`, and keyword-search commands underlying this layer were run directly during the analysis session and are **not yet** committed as standalone scripts (see Known Issues) -- `artigo.md` Section 2.7 documents the exact commands/parameters/tool versions used. Once the result tables exist under `07_metagenomic_screen/results/` and `08_metagenomic_deep/results/`, the figures are regenerated with:
+
+```bash
+conda activate assembly   # needs pandas, matplotlib, scipy
+python 07_metagenomic_screen/09_plot_blobtools_gc_tpm.py
+python 07_metagenomic_screen/10_plot_microbiome_census.py
+python 07_metagenomic_screen/11_plot_pathogen_screening.py
+python 08_metagenomic_deep/02_plot_groel_phylogeny.py
 ```
 
 ---
@@ -364,24 +422,27 @@ python 04_functional_analysis/09_figures.py
 
 | File | Description |
 |------|-------------|
-| `results/annotation_complete.tsv` | Full annotation table with all sources merged (one row per protein) |
+| `results/annotation_complete.tsv` | Full annotation table with all sources merged (one row per protein), incl. dbCAN `cazy` column |
 | `results/annotation_report.txt` | Annotation coverage statistics per source |
-| `results/go_top20_biological_process.csv` | Top 20 GO terms: Biological Process |
-| `results/go_top20_molecular_function.csv` | Top 20 GO terms: Molecular Function |
-| `results/go_top20_cellular_component.csv` | Top 20 GO terms: Cellular Component |
-| `results/kegg_pathways.csv` | KEGG pathway frequencies |
-| `figures/go_bp_barplot.png` | GO BP horizontal barplot |
-| `figures/go_mf_barplot.png` | GO MF horizontal barplot |
-| `figures/go_cc_barplot.png` | GO CC horizontal barplot |
-| `figures/kegg_pathways_barplot.png` | KEGG pathway barplot |
-| `figures/annotation_summary_pie.png` | Annotation source coverage pie chart |
+| `results/go/go_top20_BP.csv`, `_MF.csv`, `_CC.csv` | Top 20 GO terms per category (Biological Process / Molecular Function / Cellular Component) |
+| `results/kegg/kegg_pathways.csv` | KEGG pathway frequencies |
+| `figures/assembly_qc_summary.png` | Assembly/ORF-type QC summary figure |
+| `figures/annotation_summary.png` | Annotation source coverage + taxonomic origin figure |
+| `figures/go_distribution.png` | Top 20 GO terms, 3-panel (BP/MF/CC) |
+| `figures/kegg_pathways_bar.png`, `_bubble.png` | KEGG pathway bar chart / bubble chart |
 | `results/secretome/secretome_classical.tsv` | Classical secretome (TMbed: signal peptide AND <=1 TM segment) |
 | `figures/secretome_summary.png` | Secretome prediction 3-panel summary figure |
-| `results/cazy/overview.tsv` | Dedicated dbCAN CAZyme calls (DIAMOND + dbCAN-HMM + dbCAN-sub) |
-| `results/effector_candidates/effector_candidates_ranked.tsv` | Ranked candidate salivary effectors/toxins |
+| `results/cazy/overview.tsv` | Dedicated dbCAN3 CAZyme calls (DIAMOND + dbCAN-HMM + dbCAN-sub) |
+| `results/effector_candidates/effector_candidates_ranked.tsv` | Ranked candidate salivary effectors/toxins (35) |
 | `figures/effector_candidates.png` | Effector candidates dot-plot (TPM x curated category) |
-| `results/whokaryote/whokaryote_predictions_T.tsv` | Layer 2 per-contig eukaryote/prokaryote calls (Whokaryote+Tiara) |
-| `results/endosymbiont_candidates/endosymbionts_cross_validated.tsv` | Layer 1 x Layer 2 endosymbiont cross-validation |
+| `results/whokaryote/` | Camada 2 per-contig eukaryote/prokaryote calls (Whokaryote+Tiara) |
+| `results/endosymbiont_candidates/endosymbionts_cross_validated.tsv` | Camada 1 x Camada 2 endosymbiont cross-validation |
+| `07_metagenomic_screen/results/full_microbiome_census/`, `fungal_breakdown/` | Full 540-hit Bacteria + 256-hit Fungi genus census |
+| `07_metagenomic_screen/results/viral_discovery/` | RdRp-directed viral discovery + reclassification of the original 30 DIAMOND/NR virus hits |
+| `07_metagenomic_screen/results/pathogen_confirmation/` | Xylella/phytoplasma genome-wide coverage (REFUTED) |
+| `figures/microbiome_census.png`, `pathogen_screening.png` | Camada 3 summary figures |
+| `07_metagenomic_screen/results/blobtools_gc_tpm/` + `figures/blobplot_gc_tpm.png` | GC%xTPM per-contig table/plot + Mann-Whitney test |
+| `08_metagenomic_deep/results/phylogenetics/` + `figures/groel_phylogeny.png` | GroEL ML phylogeny (IQ-TREE, inconclusive) |
 
 ---
 
@@ -404,6 +465,8 @@ python 04_functional_analysis/09_figures.py
 
 ### Known Issues / Problemas Conhecidos
 
+**A full integrity audit (2026-08-30/31)** independently recomputed virtually every number in this README/`artigo.md` from raw source files on both the analysis server and this repo, and checksummed server<->local result files -- **nothing was found fabricated**. It did find and fix two real bugs in `03_annotation/09_merge_cazy.py` (a substring-match bug that mis-counted GH28/GH5 CAZy hits as 16 instead of 15, and a merge step that left 574 stale eggNOG `cazy` values instead of cleanly overwriting with the 468 dbCAN-confirmed calls) and one latent low-severity bug in `06_effector_prioritization/effector_candidates.py` (a GH28/GH5 regex that didn't match dbCAN's underscore subfamily suffixes, e.g. `GH5_12` -- zero impact on the published 35 effector candidates). See `artigo.md` Section 6, items 17-18 for the full account.
+
 The `annotation_complete.tsv` shipped in earlier commits had a stale merge (empty GO/KEGG/eggNOG-OG/COG columns; `is_fungi`/`is_eukaryote` flags always 0) because it had been generated by an older, out-of-sync version of the annotation script. This was diagnosed and fixed by `03_annotation/07_fix_annotation_merge.py`, which re-derives these fields directly from the raw `emapper.emapper.annotations` (matched by real header, not hardcoded column indices) and from the full (non-reformatted) NCBI lineage in `results/taxon_lineage.tsv`. The corresponding index bug in `auto_annotate.py::_parse_emapper` (`eggnog_og` read from the wrong column) was also patched so that future from-scratch runs do not reintroduce it. Post-fix counts were cross-checked against a prior known-good run hardcoded in `04_functional_analysis/plot_annotation.py` (Bacteria, Fungi, Viruses and Pfam counts matched exactly).
 
 **Camada 3 (pathogen screening/full microbiome census, 2026-07-25) was executed via direct commands during the analysis session, not as standalone numbered scripts** like steps 1-9 -- a departure from this repo's usual convention. This is a known reproducibility gap: the exact commands are documented in the project's session memory but not committed as reusable `.py`/`.sh` files in `07_metagenomic_screen/`/`08_metagenomic_deep/`. A 4th screening layer (CAT/BAT, contig-level taxonomic classification without Whokaryote's 5000bp minimum size cutoff) was designed but not executed -- the required database was confirmed at 91.6GB (GTDB) to 197.5GB (NCBI nr), judged disproportionate to the expected gain given shared server disk space; deferred as optional future work.
@@ -418,16 +481,26 @@ If you use this pipeline or data in your research, please cite:
 
 > Santos, E. et al. (in preparation). De novo transcriptome assembly and functional annotation of the salivary gland of *Mahanarva spectabilis* (Hemiptera: Cercopidae).
 
-Database/tool citations:
-- Trinity: Grabherr et al. (2011) *Nature Biotechnology* 29, 644-652.
+Database/tool citations (full table with exact versions run in `artigo.md` Section 2.9):
+- Trinity: Grabherr et al. (2011) *Nature Biotechnology* 29, 644-652; Haas et al. (2013) *Nature Protocols* 8(8), 1494-1512 (also covers TransDecoder).
+- FastQC: Andrews, S. (2010). Babraham Bioinformatics.
+- fastp: Chen, S. et al. (2018) *Bioinformatics* 34(17), i884-i890.
+- MultiQC: Ewels, P. et al. (2016) *Bioinformatics* 32(19), 3047-3048.
+- CD-HIT: Fu, L. et al. (2012) *Bioinformatics* 28(23), 3150-3152.
+- seqkit: Shen, W. et al. (2016) *PLOS ONE* 11(10), e0163962.
 - DIAMOND: Buchfink et al. (2021) *Nature Methods* 18, 366-368.
+- TaxonKit: Shen, W. & Ren, H. (2021) *Journal of Genetics and Genomics* 48(9), 844-850.
 - eggNOG-mapper: Cantalapiedra et al. (2021) *Molecular Biology and Evolution* 38(12), 5825-5829.
+- HMMER: Eddy, S.R. (2011) *PLOS Computational Biology* 7(10), e1002195.
 - BUSCO: Manni et al. (2021) *Molecular Biology and Evolution* 38(10), 4647-4654.
 - Pfam: Mistry et al. (2021) *Nucleic Acids Research* 49(D1), D412-D419.
+- Salmon: Patro, R. et al. (2017) *Nature Methods* 14(4), 417-419.
 - TMbed: Bernhofer, M. & Rost, B. (2022). TMbed: transmembrane proteins predicted through language model embeddings. *BMC Bioinformatics* 23, 326.
 - dbCAN: Zheng, J. et al. (2023). dbCAN3: automated carbohydrate-active enzyme and substrate annotation. *Nucleic Acids Research* 51(W1), W115-W121.
 - Whokaryote: Pronk, L.J.U. & Medema, M.H. (2022). Whokaryote: distinguishing eukaryotic and prokaryotic contigs in metagenomes based on gene structure. *Microbial Genomics* 8(5), 000823.
 - Tiara: Karlicki, M., Antonowicz, S. & Karnkowska, A. (2022). Tiara: deep learning-based classification system for eukaryotic sequences. *Bioinformatics* 38(2), 344-350.
+- Bowtie2: Langmead, B. & Salzberg, S.L. (2012) *Nature Methods* 9(4), 357-359.
+- IQ-TREE: Wong, T.K.F. et al. (2025). IQ-TREE 3: phylogenomic inference software using complex evolutionary models. *bioRxiv*. + UFBoot2: Hoang, D.T. et al. (2018) *Molecular Biology and Evolution* 35(2), 518-522.
 - Shi, M. et al. (2016). Redefining the invertebrate RNA virosphere. *Nature* 540, 539-543. (RdRp-domain-directed viral discovery precedent, Camada 3)
 
 Biological background citations:
